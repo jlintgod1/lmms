@@ -65,6 +65,8 @@ InstrumentTrack::InstrumentTrack(TrackContainer* tc) :
 	m_pitchRangeModel(1, 1, 60, this, tr("Pitch range")),
 	m_mixerChannelModel(0, 0, 0, this, tr("Mixer channel")),
 	m_useMasterPitchModel(true, this, tr("Master pitch")),
+	m_randomPitchMinModel(0, MinPitchDefault, MaxPitchDefault, 1, this, tr("Min Random Pitch")),
+	m_randomPitchMaxModel(0, MinPitchDefault, MaxPitchDefault, 1, this, tr("Max Random Pitch")),
 	m_instrument(nullptr),
 	m_soundShaping(this),
 	m_arpeggio(this),
@@ -842,6 +844,8 @@ void InstrumentTrack::saveTrackSpecificSettings(QDomDocument& doc, QDomElement& 
 	m_firstKeyModel.saveSettings(doc, thisElement, "firstkey");
 	m_lastKeyModel.saveSettings(doc, thisElement, "lastkey");
 	m_useMasterPitchModel.saveSettings( doc, thisElement, "usemasterpitch");
+	m_randomPitchMinModel.saveSettings( doc, thisElement, "randompitch_min" );
+	m_randomPitchMaxModel.saveSettings( doc, thisElement, "randompitch_max" );
 	m_microtuner.saveSettings(doc, thisElement);
 
 	// Save MIDI CC stuff
@@ -915,6 +919,8 @@ void InstrumentTrack::loadTrackSpecificSettings( const QDomElement & thisElement
 	m_firstKeyModel.loadSettings(thisElement, "firstkey");
 	m_lastKeyModel.loadSettings(thisElement, "lastkey");
 	m_useMasterPitchModel.loadSettings( thisElement, "usemasterpitch");
+	m_randomPitchMinModel.loadSettings( thisElement, "randompitch_min" );
+	m_randomPitchMaxModel.loadSettings( thisElement, "randompitch_max" );
 	m_microtuner.loadSettings(thisElement);
 
 	// clear effect-chain just in case we load an old preset without FX-data

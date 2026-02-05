@@ -379,11 +379,17 @@ void InstrumentTrackWindow::modelChanged()
 		m_tuningView->microtunerNotSupportedLabel()->show();
 		m_tuningView->microtunerGroupBox()->hide();
 		m_track->m_microtuner.enabledModel()->setValue(false);
+
+		m_tuningView->humanizationNotSupportedLabel()->show();
+		m_tuningView->humanizationGroupBox()->hide();
 	}
 	else
 	{
 		m_tuningView->microtunerNotSupportedLabel()->hide();
 		m_tuningView->microtunerGroupBox()->show();
+
+		m_tuningView->humanizationNotSupportedLabel()->hide();
+		m_tuningView->humanizationGroupBox()->show();
 	}
 
 	m_ssView->setModel(&m_track->m_soundShaping);
