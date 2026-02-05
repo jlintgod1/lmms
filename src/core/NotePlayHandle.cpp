@@ -99,6 +99,7 @@ NotePlayHandle::NotePlayHandle( InstrumentTrack* instrumentTrack,
 		parent->setUsesBuffer( false );
 	}
 
+	m_additionalRandomFrequency = lmms::fastRand(m_instrumentTrack->randomPitchMinModel()->value(), m_instrumentTrack->randomPitchMaxModel()->value()) / 100.f;
 	updateFrequency();
 
 	setFrames( _frames );
@@ -567,7 +568,7 @@ void NotePlayHandle::processTimePos(const TimePos& time, float pitchValue, bool 
 	}
 	else
 	{
-		const float v = detuning()->automationClip()->valueAt(time - songGlobalParentOffset() - pos());
+		const float v = detuning()->automationClip()->valueAt(time - songGlobalParentOffset() - pos()) + m_additionalRandomFrequency;
 		if (!approximatelyEqual(v, m_baseDetuning->value()))
 		{
 			m_baseDetuning->setValue(v);

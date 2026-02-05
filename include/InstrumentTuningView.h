@@ -52,8 +52,10 @@ public:
 
 	GroupBox *pitchGroupBox() {return m_pitchGroupBox;}
 	GroupBox *microtunerGroupBox() {return m_microtunerGroupBox;}
+	GroupBox *humanizationGroupBox() {return m_humanizationGroupBox;}
 
 	QLabel *microtunerNotSupportedLabel() {return m_microtunerNotSupportedLabel;}
+	QLabel *humanizationNotSupportedLabel() {return m_humanizationNotSupportedLabel;}
 
 	ComboBox *scaleCombo() {return m_scaleCombo;}
 	ComboBox *keymapCombo() {return m_keymapCombo;}
@@ -63,8 +65,10 @@ public:
 private:
 	GroupBox *m_pitchGroupBox;
 	GroupBox *m_microtunerGroupBox;
+	GroupBox *m_humanizationGroupBox;
 
 	QLabel *m_microtunerNotSupportedLabel;
+	QLabel *m_humanizationNotSupportedLabel;
 
 	ComboBox *m_scaleCombo;
 	ComboBox *m_keymapCombo;
