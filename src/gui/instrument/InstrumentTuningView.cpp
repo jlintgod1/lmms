@@ -38,6 +38,7 @@
 #include "LedCheckBox.h"
 #include "MainWindow.h"
 #include "PixmapButton.h"
+#include "Knob.h"
 
 
 namespace lmms::gui
@@ -109,6 +110,28 @@ InstrumentTuningView::InstrumentTuningView(InstrumentTrack *it, QWidget *parent)
 	m_rangeImportCheckbox->setToolTip(tr("When enabled, the first, last and base notes of this instrument will be overwritten with values specified by the selected keymap."));
 	m_rangeImportCheckbox->setCheckable(true);
 	microtunerLayout->addWidget(m_rangeImportCheckbox);
+
+	// Humanized Pitch
+	m_humanizationNotSupportedLabel = new QLabel(tr("Humanization is not available for MIDI-based instruments."));
+	m_humanizationNotSupportedLabel->setWordWrap(true);
+	m_humanizationNotSupportedLabel->hide();
+	layout->addWidget(m_humanizationNotSupportedLabel);
+
+	m_humanizationGroupBox = new GroupBox(tr("HUMANIZATION"));
+	layout->addWidget(m_humanizationGroupBox);
+	
+	auto humanizationLayout = new QHBoxLayout(m_humanizationGroupBox);
+	humanizationLayout->setContentsMargins(8, 18, 8, 8);
+
+	auto m_randomPitchMinKnob = new Knob(KnobType::Bright26, tr("Min"), this, Knob::LabelRendering::WidgetFont);
+	m_randomPitchMinKnob->setHintText( tr( "Random Pitch Min:" ), tr( " cents" ) );
+	m_randomPitchMinKnob->setModel(&it->m_randomPitchMinModel); // TODO: Make the REAL pitch model
+	humanizationLayout->addWidget(m_randomPitchMinKnob);
+
+	auto m_randomPitchMaxKnob = new Knob(KnobType::Bright26, tr("Max"), this, Knob::LabelRendering::WidgetFont);
+	m_randomPitchMaxKnob->setHintText( tr( "Random Pitch Max:" ), tr( " cents" ) );
+	m_randomPitchMaxKnob->setModel(&it->m_randomPitchMaxModel); // TODO: Make the REAL pitch model
+	humanizationLayout->addWidget(m_randomPitchMaxKnob);
 
 	// Fill remaining space
 	layout->addStretch();

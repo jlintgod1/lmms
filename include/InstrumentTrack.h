@@ -242,6 +242,16 @@ public:
 		return &m_useMasterPitchModel;
 	}
 
+	FloatModel* randomPitchMinModel()
+	{
+		return &m_randomPitchMinModel;
+	}
+
+	FloatModel* randomPitchMaxModel()
+	{
+		return &m_randomPitchMaxModel;
+	}
+
 	void setPreviewMode( const bool );
 
 	bool isPreviewMode() const
@@ -317,6 +327,8 @@ private:
 	IntModel m_pitchRangeModel;
 	IntModel m_mixerChannelModel;
 	BoolModel m_useMasterPitchModel;
+	FloatModel m_randomPitchMinModel;
+	FloatModel m_randomPitchMaxModel;
 
 	Instrument * m_instrument;
 	InstrumentSoundShaping m_soundShaping;
