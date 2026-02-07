@@ -322,6 +322,7 @@ private:
 
 	float m_frequency;
 	float m_unpitchedFrequency;
+	float m_pitchEnvelope;
 	float m_additionalRandomFrequency;
 
 	BaseDetuning* m_baseDetuning;

@@ -49,6 +49,7 @@ InstrumentSoundShaping::InstrumentSoundShaping(
 	m_volumeParameters(1., this),
 	m_cutoffParameters(0., this),
 	m_resonanceParameters(0., this),
+	m_pitchParameters(0., this),
 	m_filterEnabledModel( false, this ),
 	m_filterModel( this, tr( "Filter type" ) ),
 	m_filterCutModel( 14000.0, 1.0, 14000.0, 1.0, this, tr( "Cutoff frequency" ) ),
@@ -57,6 +58,7 @@ InstrumentSoundShaping::InstrumentSoundShaping(
 	m_volumeParameters.setDisplayName(tr("Volume"));
 	m_cutoffParameters.setDisplayName(tr("Cutoff frequency"));
 	m_resonanceParameters.setDisplayName(tr("Resonance"));
+	m_pitchParameters.setDisplayName(tr("Pitch"));
 
 	m_filterModel.addItem( tr( "Low-pass" ), std::make_unique<PixmapLoader>( "filter_lp" ) );
 	m_filterModel.addItem( tr( "Hi-pass" ), std::make_unique<PixmapLoader>( "filter_hp" ) );
@@ -102,7 +104,20 @@ float InstrumentSoundShaping::volumeLevel( NotePlayHandle* n, const f_cnt_t fram
 	return level;
 }
 
+float InstrumentSoundShaping::pitchOffset(NotePlayHandle* n, const f_cnt_t frame)
+{
+	f_cnt_t envReleaseBegin = frame - n->releaseFramesDone() + n->framesBeforeRelease();
 
+	if (!n->isReleased())
+	{
+		envReleaseBegin += Engine::audioEngine()->framesPerPeriod();
+	}
+
+	float level;
+	getPitchParameters().fillLevel(&level, frame, envReleaseBegin, 1);
+
+	return level;
+}
 
 
 void InstrumentSoundShaping::processAudioBuffer( SampleFrame* buffer,
@@ -273,6 +288,12 @@ f_cnt_t InstrumentSoundShaping::envFrames( const bool _only_vol ) const
 		{
 			ret_val = std::max(ret_val, resonanceParameters.PAHD_Frames());
 		}
+
+		auto& pitchParameters = getPitchParameters();
+		if (pitchParameters.isUsed())
+		{
+			ret_val = std::max(ret_val, pitchParameters.PAHD_Frames());
+		}
 	}
 
 	return ret_val;
@@ -314,6 +335,12 @@ f_cnt_t InstrumentSoundShaping::releaseFrames() const
 		ret_val = std::max(ret_val, resonanceParameters.releaseFrames());
 	}
 
+	auto& pitchParameters = getPitchParameters();
+	if (pitchParameters.isUsed())
+	{
+		ret_val = std::max(ret_val, pitchParameters.releaseFrames());
+	}
+
 	return ret_val;
 }
 
@@ -333,6 +360,7 @@ void InstrumentSoundShaping::saveSettings( QDomDocument & _doc, QDomElement & _t
 	saveEnvelopeAndLFOParameters(getVolumeParameters(), getVolumeNodeName(), _doc, _this);
 	saveEnvelopeAndLFOParameters(getCutoffParameters(), getCutoffNodeName(), _doc, _this);
 	saveEnvelopeAndLFOParameters(getResonanceParameters(), getResonanceNodeName(), _doc, _this);
+	saveEnvelopeAndLFOParameters(getPitchParameters(), getPitchNodeName(), _doc, _this);
 }
 
 
@@ -363,6 +391,10 @@ void InstrumentSoundShaping::loadSettings( const QDomElement & _this )
 			{
 				getResonanceParameters().restoreState(node.toElement());
 			}
+			else if (nodeName == getPitchNodeName())
+			{
+				getPitchParameters().restoreState(node.toElement());
+			}
 		}
 
 		node = node.nextSibling();
@@ -382,6 +414,11 @@ QString InstrumentSoundShaping::getCutoffNodeName() const
 QString InstrumentSoundShaping::getResonanceNodeName() const
 {
 	return getResonanceParameters().nodeName() + "res";
+}
+
+QString InstrumentSoundShaping::getPitchNodeName() const
+{
+	return getPitchParameters().nodeName() + "pitch";
 }
 
 } // namespace lmms

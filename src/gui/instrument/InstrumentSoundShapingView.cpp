@@ -53,10 +53,12 @@ InstrumentSoundShapingView::InstrumentSoundShapingView(QWidget* parent) :
 	m_volumeView = new EnvelopeAndLfoView(m_targetsTabWidget);
 	m_cutoffView = new EnvelopeAndLfoView(m_targetsTabWidget);
 	m_resonanceView = new EnvelopeAndLfoView(m_targetsTabWidget);
+	m_pitchView = new EnvelopeAndLfoView(m_targetsTabWidget); 
 
 	m_targetsTabWidget->addTab(m_volumeView, tr("VOLUME"), nullptr);
 	m_targetsTabWidget->addTab(m_cutoffView, tr("CUTOFF"), nullptr);
 	m_targetsTabWidget->addTab(m_resonanceView, tr("RESO"), nullptr);
+	m_targetsTabWidget->addTab(m_pitchView, tr("PITCH"), nullptr);
 
 	mainLayout->addWidget(m_targetsTabWidget, 1);
 
@@ -119,6 +121,7 @@ void InstrumentSoundShapingView::modelChanged()
 	m_volumeView->setModel(&m_ss->getVolumeParameters());
 	m_cutoffView->setModel(&m_ss->getCutoffParameters());
 	m_resonanceView->setModel(&m_ss->getResonanceParameters());
+	m_pitchView->setModel(&m_ss->getPitchParameters());
 }
 
 
