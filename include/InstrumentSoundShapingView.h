@@ -63,6 +63,7 @@ private:
 	EnvelopeAndLfoView* m_volumeView;
 	EnvelopeAndLfoView* m_cutoffView;
 	EnvelopeAndLfoView* m_resonanceView;
+	EnvelopeAndLfoView* m_pitchView;
 
 	// filter-stuff
 	GroupBox * m_filterGroupBox;

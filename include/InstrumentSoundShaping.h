@@ -61,6 +61,9 @@ public:
 	const EnvelopeAndLfoParameters& getResonanceParameters() const { return m_resonanceParameters; }
 	EnvelopeAndLfoParameters& getResonanceParameters() { return m_resonanceParameters; }
 
+	const EnvelopeAndLfoParameters& getPitchParameters() const { return m_pitchParameters; }
+	EnvelopeAndLfoParameters& getPitchParameters() { return m_pitchParameters; }
+
 	BoolModel& getFilterEnabledModel() { return m_filterEnabledModel; }
 	ComboBoxModel& getFilterModel() { return m_filterModel; }
 	FloatModel& getFilterCutModel() { return m_filterCutModel; }
@@ -70,6 +73,7 @@ public:
 	f_cnt_t releaseFrames() const;
 
 	float volumeLevel( NotePlayHandle * _n, const f_cnt_t _frame );
+	float pitchOffset(NotePlayHandle* n, const f_cnt_t frame);
 
 
 	void saveSettings( QDomDocument & _doc, QDomElement & _parent ) override;
@@ -83,6 +87,7 @@ private:
 	QString getVolumeNodeName() const;
 	QString getCutoffNodeName() const;
 	QString getResonanceNodeName() const;
+	QString getPitchNodeName() const;
 
 private:
 	InstrumentTrack * m_instrumentTrack;
@@ -90,6 +95,7 @@ private:
 	EnvelopeAndLfoParameters m_volumeParameters;
 	EnvelopeAndLfoParameters m_cutoffParameters;
 	EnvelopeAndLfoParameters m_resonanceParameters;
+	EnvelopeAndLfoParameters m_pitchParameters;
 
 	BoolModel m_filterEnabledModel;
 	ComboBoxModel m_filterModel;

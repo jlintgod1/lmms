@@ -195,6 +195,15 @@ public:
 		return m_arpeggio.m_arpEnabledModel.value();
 	}
 
+	const InstrumentSoundShaping* soundShaping() const
+	{
+		return &m_soundShaping;
+	}
+	InstrumentSoundShaping* soundShaping()
+	{
+		return &m_soundShaping;
+	}
+
 	// simple helper for removing midiport-XML-node when loading presets
 	static void removeMidiPortNode( DataFile& dataFile );
 

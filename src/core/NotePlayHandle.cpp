@@ -235,7 +235,15 @@ void NotePlayHandle::play( SampleFrame* _working_buffer )
 			offset() );
 	}
 
-	if( m_frequencyNeedsUpdate )
+	if (instrumentTrack()->soundShaping()->getPitchParameters().isUsed())
+	{
+		const float lastPitchEnv = m_pitchEnvelope;
+		m_pitchEnvelope = instrumentTrack()->soundShaping()->pitchOffset(this, m_totalFramesPlayed);
+
+		m_frequencyNeedsUpdate = !approximatelyEqual(m_pitchEnvelope, lastPitchEnv);
+	}
+
+	if (m_frequencyNeedsUpdate)
 	{
 		updateFrequency();
 	}
@@ -544,7 +552,7 @@ void NotePlayHandle::updateFrequency()
 	else
 	{
 		// default key mapping and 12-TET frequency computation with default 440 Hz base note frequency
-		const float pitch = (key() - baseNote + masterPitch + detune) / 12.0f;
+		const float pitch = (key() - baseNote + masterPitch + detune + m_pitchEnvelope) / 12.0f;
 		m_frequency = DefaultBaseFreq * std::exp2(pitch + instrumentPitch / (100 * 12.0f));
 		m_unpitchedFrequency = DefaultBaseFreq * std::exp2(pitch);
 	}
