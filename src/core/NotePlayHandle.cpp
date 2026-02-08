@@ -235,15 +235,17 @@ void NotePlayHandle::play( SampleFrame* _working_buffer )
 			offset() );
 	}
 
+	const float lastPitchEnv = m_pitchEnvelope;
 	if (instrumentTrack()->soundShaping()->getPitchParameters().isUsed())
 	{
-		const float lastPitchEnv = m_pitchEnvelope;
 		m_pitchEnvelope = instrumentTrack()->soundShaping()->pitchOffset(this, m_totalFramesPlayed);
-
-		m_frequencyNeedsUpdate = !approximatelyEqual(m_pitchEnvelope, lastPitchEnv);
+	}
+	else
+	{
+		m_pitchEnvelope = 0.0f;
 	}
 
-	if (m_frequencyNeedsUpdate)
+	if (m_frequencyNeedsUpdate || !approximatelyEqual(m_pitchEnvelope, lastPitchEnv))
 	{
 		updateFrequency();
 	}
