@@ -543,7 +543,7 @@ void NotePlayHandle::updateFrequency()
 		if (m_instrumentTrack->isKeyMapped(transposedKey))
 		{
 			const auto frequency = m_instrumentTrack->m_microtuner.keyToFreq(transposedKey, baseNote);
-			m_frequency = frequency * std::exp2((detune + instrumentPitch / 100) / 12.f);
+			m_frequency = frequency * std::exp2((detune + instrumentPitch / 100 + m_pitchEnvelope) / 12.f);
 			m_unpitchedFrequency = frequency * std::exp2(detune / 12.f);
 		}
 		else
