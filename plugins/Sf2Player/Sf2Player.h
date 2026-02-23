@@ -38,6 +38,8 @@
 #include "InstrumentView.h"
 #include "LcdSpinBox.h"
 #include "SampleFrame.h"
+#include "TempoSyncKnob.h"
+#include "LedCheckBox.h"
 
 class QLabel;
 
@@ -148,6 +150,17 @@ private:
 	FloatModel m_chorusSpeed;
 	FloatModel m_chorusDepth;
 
+	BoolModel m_envAttackOverrideOn;
+	BoolModel m_envHoldOverrideOn;
+	BoolModel m_envDecayOverrideOn;
+	BoolModel m_envSustainOverrideOn;
+	BoolModel m_envReleaseOverrideOn;
+	TempoSyncKnobModel m_envAttack;
+	TempoSyncKnobModel m_envHold;
+	TempoSyncKnobModel m_envDecay;
+	FloatModel m_envSustain;
+	TempoSyncKnobModel m_envRelease;
+
 	QVector<NotePlayHandle *> m_playingNotes;
 	QMutex m_playingNotesMutex;
 
@@ -156,6 +169,8 @@ private:
 	void noteOn( Sf2PluginData * n );
 	void noteOff( Sf2PluginData * n );
 	void renderFrames( f_cnt_t frames, SampleFrame* buf );
+
+	void updateEnvelopeForNote(Sf2PluginData* n);
 
 	friend class gui::Sf2InstrumentView;
 
@@ -182,30 +197,41 @@ public:
 private:
 	void modelChanged() override;
 
-	PixmapButton * m_fileDialogButton;
-	PixmapButton * m_patchDialogButton;
+	PixmapButton* m_fileDialogButton;
+	PixmapButton* m_patchDialogButton;
 
-	LcdSpinBox * m_bankNumLcd;
-	LcdSpinBox * m_patchNumLcd;
+	LcdSpinBox* m_bankNumLcd;
+	LcdSpinBox* m_patchNumLcd;
 
-	QLabel * m_filenameLabel;
-	QLabel * m_patchLabel;
+	QLabel* m_filenameLabel;
+	QLabel* m_patchLabel;
 
-	Knob	* m_gainKnob;
+	Knob* m_gainKnob;
 
-	PixmapButton * m_reverbButton;
-	Knob	* m_reverbRoomSizeKnob;
-	Knob	* m_reverbDampingKnob;
-	Knob	* m_reverbWidthKnob;
-	Knob	* m_reverbLevelKnob;
+	PixmapButton* m_reverbButton;
+	Knob* m_reverbRoomSizeKnob;
+	Knob* m_reverbDampingKnob;
+	Knob* m_reverbWidthKnob;
+	Knob* m_reverbLevelKnob;
 
-	PixmapButton * m_chorusButton;
-	Knob * m_chorusNumKnob;
-	Knob * m_chorusLevelKnob;
-	Knob * m_chorusSpeedKnob;
-	Knob * m_chorusDepthKnob;
+	PixmapButton* m_chorusButton;
+	Knob* m_chorusNumKnob;
+	Knob* m_chorusLevelKnob;
+	Knob* m_chorusSpeedKnob;
+	Knob* m_chorusDepthKnob;
 
-	static PatchesDialog * s_patchDialog;
+	LedCheckBox* m_envAttackButton;
+	LedCheckBox* m_envHoldButton;
+	LedCheckBox* m_envDecayButton;
+	LedCheckBox* m_envSustainButton;
+	LedCheckBox* m_envReleaseButton;
+	TempoSyncKnob* m_envAttackKnob;
+	TempoSyncKnob* m_envHoldKnob;
+	TempoSyncKnob* m_envDecayKnob;
+	Knob* m_envSustainKnob;
+	TempoSyncKnob* m_envReleaseKnob;
+
+	static PatchesDialog* s_patchDialog;
 
 protected slots:
 	void invalidateFile();

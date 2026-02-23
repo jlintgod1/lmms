@@ -143,7 +143,17 @@ Sf2Instrument::Sf2Instrument( InstrumentTrack * _instrument_track ) :
 	m_chorusNum( FLUID_CHORUS_DEFAULT_N, 0, 10.0, 1.0, this, tr( "Chorus voices" ) ),
 	m_chorusLevel(FLUID_CHORUS_DEFAULT_LEVEL, 0, 10.f, 0.01f, this, tr("Chorus level")),
 	m_chorusSpeed(FLUID_CHORUS_DEFAULT_SPEED, 0.29f, 5.f, 0.01f, this, tr("Chorus speed")),
-	m_chorusDepth(FLUID_CHORUS_DEFAULT_DEPTH, 0, 46.f, 0.05f, this, tr("Chorus depth"))
+	m_chorusDepth(FLUID_CHORUS_DEFAULT_DEPTH, 0, 46.f, 0.05f, this, tr("Chorus depth")),
+	m_envAttackOverrideOn(false, this, tr("Override Attack")),
+	m_envHoldOverrideOn(false, this, tr("Override Hold")),
+	m_envDecayOverrideOn(false, this, tr("Override Decay")),
+	m_envSustainOverrideOn(false, this, tr("Override Sustain")),
+	m_envReleaseOverrideOn(false, this, tr("Override Release")),
+	m_envAttack(0.001f, 0.001f, 100.0f, 0.01f, 100000.0f, this, tr("Attack Time")),
+	m_envHold(0.001f, 0.001f, 20.0f, 0.01f, 20000.0f, this, tr("Hold Time")),
+	m_envDecay(0.001f, 0.001f, 100.0f, 0.01f, 100000.0f, this, tr("Decay Time")),
+	m_envSustain(100.0f, 0.0f, 100.0f, 1.0f, this, tr("Sustain Amount")),
+	m_envRelease(0.001f, 0.001f, 100.0f, 0.01f, 100000.0f, this, tr("Release Time"))
 {
 
 
@@ -241,23 +251,35 @@ Sf2Instrument::~Sf2Instrument()
 
 void Sf2Instrument::saveSettings( QDomDocument & _doc, QDomElement & _this )
 {
-	_this.setAttribute( "src", m_filename );
-	m_patchNum.saveSettings( _doc, _this, "patch" );
-	m_bankNum.saveSettings( _doc, _this, "bank" );
+	_this.setAttribute("src", m_filename);
+	m_patchNum.saveSettings(_doc, _this, "patch");
+	m_bankNum.saveSettings(_doc, _this, "bank");
 
-	m_gain.saveSettings( _doc, _this, "gain" );
+	m_gain.saveSettings(_doc, _this, "gain");
 
-	m_reverbOn.saveSettings( _doc, _this, "reverbOn" );
-	m_reverbRoomSize.saveSettings( _doc, _this, "reverbRoomSize" );
-	m_reverbDamping.saveSettings( _doc, _this, "reverbDamping" );
-	m_reverbWidth.saveSettings( _doc, _this, "reverbWidth" );
-	m_reverbLevel.saveSettings( _doc, _this, "reverbLevel" );
+	m_reverbOn.saveSettings(_doc, _this, "reverbOn");
+	m_reverbRoomSize.saveSettings(_doc, _this, "reverbRoomSize");
+	m_reverbDamping.saveSettings(_doc, _this, "reverbDamping");
+	m_reverbWidth.saveSettings(_doc, _this, "reverbWidth");
+	m_reverbLevel.saveSettings(_doc, _this, "reverbLevel");
 
-	m_chorusOn.saveSettings( _doc, _this, "chorusOn" );
-	m_chorusNum.saveSettings( _doc, _this, "chorusNum" );
-	m_chorusLevel.saveSettings( _doc, _this, "chorusLevel" );
-	m_chorusSpeed.saveSettings( _doc, _this, "chorusSpeed" );
-	m_chorusDepth.saveSettings( _doc, _this, "chorusDepth" );
+	m_chorusOn.saveSettings(_doc, _this, "chorusOn");
+	m_chorusNum.saveSettings(_doc, _this, "chorusNum");
+	m_chorusLevel.saveSettings(_doc, _this, "chorusLevel");
+	m_chorusSpeed.saveSettings(_doc, _this, "chorusSpeed");
+	m_chorusDepth.saveSettings(_doc, _this, "chorusDepth");
+
+	m_envAttackOverrideOn.saveSettings(_doc, _this, "envAttackOverrideOn");
+	m_envHoldOverrideOn.saveSettings(_doc, _this, "envHoldOverrideOn");
+	m_envDecayOverrideOn.saveSettings(_doc, _this, "envDecayOverrideOn");
+	m_envSustainOverrideOn.saveSettings(_doc, _this, "envSustainOverrideOn");
+	m_envReleaseOverrideOn.saveSettings(_doc, _this, "envReleaseOverrideOn");
+
+	m_envAttack.saveSettings(_doc, _this, "envAttack");
+	m_envHold.saveSettings(_doc, _this, "envHold");
+	m_envDecay.saveSettings(_doc, _this, "envDecay");
+	m_envSustain.saveSettings(_doc, _this, "envSustain");
+	m_envRelease.saveSettings(_doc, _this, "envRelease");
 }
 
 
@@ -265,24 +287,35 @@ void Sf2Instrument::saveSettings( QDomDocument & _doc, QDomElement & _this )
 
 void Sf2Instrument::loadSettings( const QDomElement & _this )
 {
-	openFile( _this.attribute( "src" ), false );
-	m_patchNum.loadSettings( _this, "patch" );
-	m_bankNum.loadSettings( _this, "bank" );
+	openFile(_this.attribute("src"), false);
+	m_patchNum.loadSettings(_this, "patch");
+	m_bankNum.loadSettings(_this, "bank");
 
-	m_gain.loadSettings( _this, "gain" );
+	m_gain.loadSettings(_this, "gain");
 
-	m_reverbOn.loadSettings( _this, "reverbOn" );
-	m_reverbRoomSize.loadSettings( _this, "reverbRoomSize" );
-	m_reverbDamping.loadSettings( _this, "reverbDamping" );
-	m_reverbWidth.loadSettings( _this, "reverbWidth" );
-	m_reverbLevel.loadSettings( _this, "reverbLevel" );
+	m_reverbOn.loadSettings(_this, "reverbOn");
+	m_reverbRoomSize.loadSettings(_this, "reverbRoomSize");
+	m_reverbDamping.loadSettings(_this, "reverbDamping");
+	m_reverbWidth.loadSettings(_this, "reverbWidth");
+	m_reverbLevel.loadSettings(_this, "reverbLevel");
 
-	m_chorusOn.loadSettings( _this, "chorusOn" );
-	m_chorusNum.loadSettings( _this, "chorusNum" );
-	m_chorusLevel.loadSettings( _this, "chorusLevel" );
-	m_chorusSpeed.loadSettings( _this, "chorusSpeed" );
-	m_chorusDepth.loadSettings( _this, "chorusDepth" );
+	m_chorusOn.loadSettings(_this, "chorusOn");
+	m_chorusNum.loadSettings(_this, "chorusNum");
+	m_chorusLevel.loadSettings(_this, "chorusLevel");
+	m_chorusSpeed.loadSettings(_this, "chorusSpeed");
+	m_chorusDepth.loadSettings(_this, "chorusDepth");
 
+	m_envAttackOverrideOn.loadSettings(_this, "envAttackOverrideOn");
+	m_envHoldOverrideOn.loadSettings(_this, "envHoldOverrideOn");
+	m_envDecayOverrideOn.loadSettings(_this, "envDecayOverrideOn");
+	m_envSustainOverrideOn.loadSettings(_this, "envSustainOverrideOn");
+	m_envReleaseOverrideOn.loadSettings(_this, "envReleaseOverrideOn");
+
+	m_envAttack.loadSettings(_this, "envAttack");
+	m_envHold.loadSettings(_this, "envHold");
+	m_envDecay.loadSettings(_this, "envDecay");
+	m_envSustain.loadSettings(_this, "envSustain");
+	m_envRelease.loadSettings(_this, "envRelease");
 }
 
 
@@ -761,6 +794,8 @@ void Sf2Instrument::noteOn( Sf2PluginData * n )
 	}
 #endif
 
+	updateEnvelopeForNote(n);
+
 	m_synthMutex.unlock();
 
 	m_notesRunningMutex.lock();
@@ -907,6 +942,50 @@ void Sf2Instrument::renderFrames( f_cnt_t frames, SampleFrame* buf )
 	}
 }
 
+void Sf2Instrument::updateEnvelopeForNote(Sf2PluginData* n)
+{
+	for (const auto& voice : n->fluidVoices)
+	{
+		if (voice.isValid())
+		{
+			if (m_envAttackOverrideOn.value())
+			{
+				fluid_voice_gen_set(voice.get(), GEN_VOLENVATTACK, (log2(m_envAttack.value())*1200));
+				fluid_voice_update_param(voice.get(), GEN_VOLENVATTACK);
+			}
+			if (m_envHoldOverrideOn.value())
+			{
+				fluid_voice_gen_set(voice.get(), GEN_VOLENVHOLD, (log2(m_envHold.value())*1200));
+				fluid_voice_update_param(voice.get(), GEN_VOLENVHOLD);
+			}
+			if (m_envDecayOverrideOn.value())
+			{
+				fluid_voice_gen_set(voice.get(), GEN_VOLENVDECAY, (log2(m_envDecay.value())*1200));
+				fluid_voice_update_param(voice.get(), GEN_VOLENVDECAY);
+			}
+			if (m_envSustainOverrideOn.value())
+			{
+				fluid_voice_gen_set(voice.get(), GEN_VOLENVSUSTAIN, (1 - (m_envSustain.value() / 100.0f)) * 1000 * (96.0f / 144.0f));
+				fluid_voice_update_param(voice.get(), GEN_VOLENVSUSTAIN);
+			}
+			if (m_envReleaseOverrideOn.value())
+			{
+				fluid_voice_gen_set(voice.get(), GEN_VOLENVRELEASE, (log2(m_envRelease.value())*1200));
+				fluid_voice_update_param(voice.get(), GEN_VOLENVRELEASE);
+			}
+		}
+	}
+}
+
+/* We don't have access to any NotePlayHandles or Sf2PluginDatas from here
+void updateEnvelope()
+{
+	for (const auto& voice : n->fluidVoices)
+	{
+		voice;
+	}
+}
+*/
 
 
 
@@ -1095,6 +1174,54 @@ Sf2InstrumentView::Sf2InstrumentView( Instrument * _instrument, QWidget * _paren
 
 	vl->addLayout( hl );
 */
+
+	// Envelope/ADSR
+	m_envAttackButton = new LedCheckBox("", this, tr("Override Attack"), LedCheckBox::LedColor::Red);
+	m_envAttackButton->move(64, 245);
+	m_envAttackButton->setToolTip(tr("Override Attack"));
+
+	m_envAttackKnob = new TempoSyncKnob(KnobType::Bright26, tr("ATT"), this, Knob::LabelRendering::LegacyFixedFontSize);
+	m_envAttackKnob->setHintText(tr("Attack Time:"), " s");
+	m_envAttackKnob->move(54, 255);
+	m_envAttackKnob->setFixedSize(31, 38);
+
+	m_envHoldButton = new LedCheckBox("", this, tr("Override Hold"), LedCheckBox::LedColor::Red);
+	m_envHoldButton->move(104, 245);
+	m_envHoldButton->setToolTip(tr("Override Hold"));
+
+	m_envHoldKnob = new TempoSyncKnob(KnobType::Bright26, tr("HOLD"), this, Knob::LabelRendering::LegacyFixedFontSize);
+	m_envHoldKnob->setHintText(tr("Hold Time:"), " s");
+	m_envHoldKnob->move(94, 255);
+	m_envHoldKnob->setFixedSize(31, 38);
+
+	m_envDecayButton = new LedCheckBox("", this, tr("Override Decay"), LedCheckBox::LedColor::Red);
+	m_envDecayButton->move(144, 245);
+	m_envDecayButton->setToolTip(tr("Override Decay"));
+
+	m_envDecayKnob = new TempoSyncKnob(KnobType::Bright26, tr("DEC"), this, Knob::LabelRendering::LegacyFixedFontSize);
+	m_envDecayKnob->setHintText(tr("Decay Time:"), " s");
+	m_envDecayKnob->move(134, 255);
+	m_envDecayKnob->setFixedSize(31, 38);
+
+	m_envSustainButton = new LedCheckBox("", this, tr("Override Sustain"), LedCheckBox::LedColor::Red);
+	m_envSustainButton->move(184, 245);
+	m_envSustainButton->setToolTip(tr("Override Sustain"));
+
+	m_envSustainKnob = new Sf2Knob(this);
+	m_envSustainKnob->setHintText(tr("Sustain Amount:"), "");
+	m_envSustainKnob->move(174, 255);
+	m_envSustainKnob->setknobNum(KnobType::Bright26);
+	m_envSustainKnob->setVolumeKnob(true);
+
+	m_envReleaseButton = new LedCheckBox("", this, tr("Override Release"), LedCheckBox::LedColor::Red);
+	m_envReleaseButton->move(224, 245);
+	m_envReleaseButton->setToolTip(tr("Override Release"));
+
+	m_envReleaseKnob = new TempoSyncKnob(KnobType::Bright26, tr("REL"), this, Knob::LabelRendering::LegacyFixedFontSize);
+	m_envReleaseKnob->setHintText(tr("Release Time:"), " s");
+	m_envReleaseKnob->move(214, 255);
+	m_envReleaseKnob->setFixedSize(31, 38);
+
 	setAutoFillBackground( true );
 	QPalette pal;
 	pal.setBrush( backgroundRole(), PLUGIN_NAME::getIconPixmap( "artwork" ) );
@@ -1125,6 +1252,17 @@ void Sf2InstrumentView::modelChanged()
 	m_chorusLevelKnob->setModel( &k->m_chorusLevel );
 	m_chorusSpeedKnob->setModel( &k->m_chorusSpeed );
 	m_chorusDepthKnob->setModel( &k->m_chorusDepth );
+	
+	m_envAttackButton->setModel(&k->m_envAttackOverrideOn);
+	m_envHoldButton->setModel(&k->m_envHoldOverrideOn);
+	m_envDecayButton->setModel(&k->m_envDecayOverrideOn);
+	m_envSustainButton->setModel(&k->m_envSustainOverrideOn);
+	m_envReleaseButton->setModel(&k->m_envReleaseOverrideOn);
+	m_envAttackKnob->setModel(&k->m_envAttack);
+	m_envHoldKnob->setModel(&k->m_envHold);
+	m_envDecayKnob->setModel(&k->m_envDecay);
+	m_envSustainKnob->setModel(&k->m_envSustain);
+	m_envReleaseKnob->setModel(&k->m_envRelease);
 
 
 	connect( k, SIGNAL( fileChanged() ), this, SLOT( updateFilename() ) );
