@@ -149,11 +149,11 @@ Sf2Instrument::Sf2Instrument( InstrumentTrack * _instrument_track ) :
 	m_envDecayOverrideOn(false, this, tr("Override Decay")),
 	m_envSustainOverrideOn(false, this, tr("Override Sustain")),
 	m_envReleaseOverrideOn(false, this, tr("Override Release")),
-	m_envAttack(0.001f, 0.001f, 100.0f, 0.01f, 100000.0f, this, tr("Attack Time")),
-	m_envHold(0.001f, 0.001f, 20.0f, 0.01f, 20000.0f, this, tr("Hold Time")),
-	m_envDecay(0.001f, 0.001f, 100.0f, 0.01f, 100000.0f, this, tr("Decay Time")),
+	m_envAttack(0.001f, 0.001f, 100.0f, 0.001f, 100000.0f, this, tr("Attack Time")),
+	m_envHold(0.001f, 0.001f, 20.0f, 0.001f, 20000.0f, this, tr("Hold Time")),
+	m_envDecay(0.001f, 0.001f, 100.0f, 0.001f, 100000.0f, this, tr("Decay Time")),
 	m_envSustain(100.0f, 0.0f, 100.0f, 1.0f, this, tr("Sustain Amount")),
-	m_envRelease(0.001f, 0.001f, 100.0f, 0.01f, 100000.0f, this, tr("Release Time"))
+	m_envRelease(0.001f, 0.001f, 100.0f, 0.001f, 100000.0f, this, tr("Release Time"))
 {
 
 
@@ -230,6 +230,15 @@ Sf2Instrument::Sf2Instrument( InstrumentTrack * _instrument_track ) :
 	connect(instrumentTrack()->microtuner()->keymapModel(), &Model::dataChanged, this, &Sf2Instrument::updateTuning, Qt::DirectConnection);
 	connect(instrumentTrack()->microtuner()->keyRangeImportModel(), &Model::dataChanged, this, &Sf2Instrument::updateTuning, Qt::DirectConnection);
 	connect(instrumentTrack()->baseNoteModel(), &Model::dataChanged, this, &Sf2Instrument::updateTuning, Qt::DirectConnection);
+
+	// Make models logarithmic since a user is more likely to set low envelope values
+	// (40s of attack time is just ridiculous)
+	// TODO: Currently nonfunctional until we find a different spot or way to update the knobs?
+	m_envAttack.setScaleLogarithmic();
+	m_envHold.setScaleLogarithmic();
+	m_envDecay.setScaleLogarithmic();
+	m_envRelease.setScaleLogarithmic();
+
 
 	auto iph = new InstrumentPlayHandle(this, _instrument_track);
 	Engine::audioEngine()->addPlayHandle( iph );
@@ -794,6 +803,9 @@ void Sf2Instrument::noteOn( Sf2PluginData * n )
 	}
 #endif
 
+	// TODO: Should this also be in a FLUIDSYNTH_VERSION_MAJOR preprocessor?
+	//  The functions I use also exist in Fluidsynth 1.x.x, but I don't know
+	//  if they work the same as in 2.x.x.
 	updateEnvelopeForNote(n);
 
 	m_synthMutex.unlock();
@@ -948,6 +960,10 @@ void Sf2Instrument::updateEnvelopeForNote(Sf2PluginData* n)
 	{
 		if (voice.isValid())
 		{
+			// TODO: This could be refactored so we can use a loop rather than 5 random blocks.
+			//  (Also useful for adjusting envelopes of other generators like vibrato and filters) 
+
+			// Use of log2 based on the Soundfont 2.01 spec definition for a timecent and attackVolEnv generator 
 			if (m_envAttackOverrideOn.value())
 			{
 				fluid_voice_gen_set(voice.get(), GEN_VOLENVATTACK, (log2(m_envAttack.value())*1200));
@@ -965,6 +981,7 @@ void Sf2Instrument::updateEnvelopeForNote(Sf2PluginData* n)
 			}
 			if (m_envSustainOverrideOn.value())
 			{
+				// TODO: Figure out what values actually correspond to different decibel values (on Fluidsynth/Soundfont's side)
 				fluid_voice_gen_set(voice.get(), GEN_VOLENVSUSTAIN, (1 - (m_envSustain.value() / 100.0f)) * 1000 * (96.0f / 144.0f));
 				fluid_voice_update_param(voice.get(), GEN_VOLENVSUSTAIN);
 			}
@@ -977,7 +994,7 @@ void Sf2Instrument::updateEnvelopeForNote(Sf2PluginData* n)
 	}
 }
 
-/* We don't have access to any NotePlayHandles or Sf2PluginDatas from here
+/* TODO: Implement with m_playingNotes (the answer was right under my nose literally the whole time!)
 void updateEnvelope()
 {
 	for (const auto& voice : n->fluidVoices)
