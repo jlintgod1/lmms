@@ -1,9 +1,10 @@
 /*
- * InstrumentTuningView.h - widget in instrument-track-window for setting up
- *                          tuning and transposition options
+ * InstrumentExperimentalView.h - widget in instrument-track-window with playground-
+ *                                exclusive experimental features
  *
  * Copyright (c) 2005-2014 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  * Copyright (c) 2020-2022 Martin Pavelek <he29.HS/at/gmail.com>
+ * Copyright (c) 2026 Jlintgod <jlintgod/at/gmail.com>
  *
  * This file is part of LMMS - https://lmms.io
  *
@@ -24,8 +25,8 @@
  *
  */
 
-#ifndef LMMS_GUI_INSTRUMENT_TUNING_VIEW_H
-#define LMMS_GUI_INSTRUMENT_TUNING_VIEW_H
+#ifndef LMMS_GUI_INSTRUMENT_EXPERIMENTAL_VIEW_H
+#define LMMS_GUI_INSTRUMENT_EXPERIMENTAL_VIEW_H
 
 #include <QWidget>
 
@@ -44,32 +45,20 @@ class GroupBox;
 class LedCheckBox;
 
 
-class InstrumentTuningView : public QWidget
+class InstrumentExperimentalView : public QWidget
 {
 	Q_OBJECT
 public:
-	InstrumentTuningView(InstrumentTrack *it, QWidget *parent);
+	InstrumentExperimentalView(InstrumentTrack *it, QWidget *parent);
 
-	GroupBox *pitchGroupBox() {return m_pitchGroupBox;}
-	GroupBox *microtunerGroupBox() {return m_microtunerGroupBox;}
+	GroupBox *humanizationGroupBox() {return m_humanizationGroupBox;}
 
-	QLabel *microtunerNotSupportedLabel() {return m_microtunerNotSupportedLabel;}
-
-	ComboBox *scaleCombo() {return m_scaleCombo;}
-	ComboBox *keymapCombo() {return m_keymapCombo;}
-
-	LedCheckBox *rangeImportCheckbox() {return m_rangeImportCheckbox;}
+	QLabel *humanizationNotSupportedLabel() {return m_humanizationNotSupportedLabel;}
 
 private:
-	GroupBox *m_pitchGroupBox;
-	GroupBox *m_microtunerGroupBox;
+	GroupBox *m_humanizationGroupBox;
 
-	QLabel *m_microtunerNotSupportedLabel;
-
-	ComboBox *m_scaleCombo;
-	ComboBox *m_keymapCombo;
-
-	LedCheckBox *m_rangeImportCheckbox;
+	QLabel *m_humanizationNotSupportedLabel;
 };
 
 
@@ -77,4 +66,4 @@ private:
 
 } // namespace lmms
 
-#endif // LMMS_GUI_INSTRUMENT_TUNING_VIEW_H
+#endif // LMMS_GUI_INSTRUMENT_EXPERIMENTAL_VIEW_H
