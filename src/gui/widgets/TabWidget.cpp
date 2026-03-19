@@ -302,7 +302,7 @@ void TabWidget::wheelEvent(QWheelEvent* we)
 	}
 
 	we->accept();
-	int dir = (we->angleDelta().y() < 0) ? 1 : -1;
+	int dir = (we->angleDelta().y() < 0 || we->angleDelta().x() < 0) ? 1 : -1;
 	int tab = m_activeTab;
 	while(tab > -1 && static_cast<int>(tab) < m_widgets.count())
 	{
