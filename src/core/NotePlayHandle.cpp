@@ -236,9 +236,9 @@ void NotePlayHandle::play( SampleFrame* _working_buffer )
 	}
 
 	const float lastPitchEnv = m_pitchEnvelope;
-	if (instrumentTrack()->soundShaping()->getPitchParameters().isUsed())
+	if (m_instrumentTrack->m_soundShaping.getPitchParameters().isUsed())
 	{
-		m_pitchEnvelope = instrumentTrack()->soundShaping()->pitchOffset(this, m_totalFramesPlayed);
+		m_pitchEnvelope = m_instrumentTrack->m_soundShaping.pitchOffset(this, m_totalFramesPlayed);
 	}
 	else
 	{
