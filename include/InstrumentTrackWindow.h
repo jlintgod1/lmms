@@ -49,6 +49,7 @@ class InstrumentFunctionNoteStackingView;
 class InstrumentMidiIOView;
 class InstrumentTuningView;
 class InstrumentSoundShapingView;
+class InstrumentExperimentalView;
 class InstrumentTrackView;
 class Knob;
 class LcdSpinBox;
@@ -163,6 +164,7 @@ private:
 	InstrumentMidiIOView * m_midiView;
 	EffectRackView * m_effectView;
 	InstrumentTuningView *m_tuningView;
+	InstrumentExperimentalView* m_experimentalView;
 
 
 	// test-piano at the bottom of every instrument-settings-window

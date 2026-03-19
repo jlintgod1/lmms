@@ -63,6 +63,7 @@ SET(LMMS_SRCS
 
 	gui/instrument/EnvelopeAndLfoView.cpp
 	gui/instrument/EnvelopeGraph.cpp
+	gui/instrument/InstrumentExperimentalView.cpp
 	gui/instrument/InstrumentFunctionViews.cpp
 	gui/instrument/InstrumentMidiIOView.cpp
 	gui/instrument/InstrumentTuningView.cpp
