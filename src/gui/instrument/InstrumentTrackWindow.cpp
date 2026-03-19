@@ -51,6 +51,7 @@
 #include "InstrumentMidiIOView.h"
 #include "InstrumentTuningView.h"
 #include "InstrumentSoundShapingView.h"
+#include "InstrumentExperimentalView.h"
 #include "InstrumentTrack.h"
 #include "InstrumentTrackView.h"
 #include "Knob.h"
@@ -261,12 +262,15 @@ InstrumentTrackWindow::InstrumentTrackWindow( InstrumentTrackView * _itv ) :
 	// Tuning tab
 	m_tuningView = new InstrumentTuningView(m_track, m_tabWidget);
 
+	// Experimental tab
+	m_experimentalView = new InstrumentExperimentalView(m_track, m_tabWidget);
 
 	m_tabWidget->addTab(m_ssView, tr("Envelope, filter & LFO"), "env_lfo_tab", 1);
 	m_tabWidget->addTab(m_instrumentFunctionsView, tr("Chord stacking & arpeggio"), "func_tab", 2);
 	m_tabWidget->addTab(m_effectView, tr("Effects"), "fx_tab", 3);
 	m_tabWidget->addTab(m_midiView, tr("MIDI"), "midi_tab", 4);
 	m_tabWidget->addTab(m_tuningView, tr("Tuning and transposition"), "tuning_tab", 5);
+	m_tabWidget->addTab(m_experimentalView, tr("Experimental"), "led_red", 6);
 
 	// setup piano-widget
 	m_pianoView = new PianoView( this );
@@ -304,6 +308,7 @@ void InstrumentTrackWindow::resizeEvent(QResizeEvent * event) {
 	adjustTabSize(m_effectView);
 	adjustTabSize(m_midiView);
 	adjustTabSize(m_tuningView);
+	adjustTabSize(m_experimentalView);
 }
 
 
@@ -379,16 +384,16 @@ void InstrumentTrackWindow::modelChanged()
 		m_tuningView->microtunerGroupBox()->hide();
 		m_track->m_microtuner.enabledModel()->setValue(false);
 
-		m_tuningView->humanizationNotSupportedLabel()->show();
-		m_tuningView->humanizationGroupBox()->hide();
+		m_experimentalView->humanizationNotSupportedLabel()->show();
+		m_experimentalView->humanizationGroupBox()->hide();
 	}
 	else
 	{
 		m_tuningView->microtunerNotSupportedLabel()->hide();
 		m_tuningView->microtunerGroupBox()->show();
 
-		m_tuningView->humanizationNotSupportedLabel()->hide();
-		m_tuningView->humanizationGroupBox()->show();
+		m_experimentalView->humanizationNotSupportedLabel()->hide();
+		m_experimentalView->humanizationGroupBox()->show();
 	}
 
 	m_ssView->setModel(&m_track->m_soundShaping);
@@ -492,6 +497,7 @@ void InstrumentTrackWindow::updateInstrumentView()
 		m_effectView->setMaximumSize(maxSize);
 		m_midiView->setMaximumSize(maxSize);
 		m_tuningView->setMaximumSize(maxSize);
+		m_experimentalView->setMaximumSize(maxSize);
 
 		m_ssView->setFunctionsHidden(m_track->m_instrument->isSingleStreamed());
 
