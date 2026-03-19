@@ -121,7 +121,7 @@ float InstrumentSoundShaping::pitchOffset(NotePlayHandle* n, const f_cnt_t frame
 
 
 void InstrumentSoundShaping::processAudioBuffer( SampleFrame* buffer,
-							const fpp_t frames,
+							const f_cnt_t frames,
 							NotePlayHandle* n )
 {
 	const f_cnt_t envTotalFrames = n->totalFramesPlayed();
@@ -173,7 +173,7 @@ void InstrumentSoundShaping::processAudioBuffer( SampleFrame* buffer,
 
 		if (cutoffParameters.isUsed() && resonanceParameters.isUsed())
 		{
-			for( fpp_t frame = 0; frame < frames; ++frame )
+			for( f_cnt_t frame = 0; frame < frames; ++frame )
 			{
 				const float new_cut_val = EnvelopeAndLfoParameters::expKnobVal( cutBuffer[frame] ) *
 								CUT_FREQ_MULTIPLIER + fcv;
@@ -194,7 +194,7 @@ void InstrumentSoundShaping::processAudioBuffer( SampleFrame* buffer,
 		}
 		else if (cutoffParameters.isUsed())
 		{
-			for( fpp_t frame = 0; frame < frames; ++frame )
+			for( f_cnt_t frame = 0; frame < frames; ++frame )
 			{
 				float new_cut_val = EnvelopeAndLfoParameters::expKnobVal( cutBuffer[frame] ) *
 								CUT_FREQ_MULTIPLIER + fcv;
@@ -211,7 +211,7 @@ void InstrumentSoundShaping::processAudioBuffer( SampleFrame* buffer,
 		}
 		else if(resonanceParameters.isUsed() )
 		{
-			for( fpp_t frame = 0; frame < frames; ++frame )
+			for( f_cnt_t frame = 0; frame < frames; ++frame )
 			{
 				float new_res_val = frv + RES_MULTIPLIER * resBuffer[frame];
 
@@ -229,7 +229,7 @@ void InstrumentSoundShaping::processAudioBuffer( SampleFrame* buffer,
 		{
 			n->m_filter->calcFilterCoeffs( fcv, frv );
 
-			for( fpp_t frame = 0; frame < frames; ++frame )
+			for( f_cnt_t frame = 0; frame < frames; ++frame )
 			{
 				buffer[frame][0] = n->m_filter->update( buffer[frame][0], 0 );
 				buffer[frame][1] = n->m_filter->update( buffer[frame][1], 1 );
@@ -244,7 +244,7 @@ void InstrumentSoundShaping::processAudioBuffer( SampleFrame* buffer,
 		QVarLengthArray<float> volBuffer(frames);
 		volumeParameters.fillLevel(volBuffer.data(), envTotalFrames, envReleaseBegin, frames);
 
-		for( fpp_t frame = 0; frame < frames; ++frame )
+		for( f_cnt_t frame = 0; frame < frames; ++frame )
 		{
 			float vol_level = volBuffer[frame];
 			vol_level = vol_level * vol_level;
@@ -256,7 +256,7 @@ void InstrumentSoundShaping::processAudioBuffer( SampleFrame* buffer,
 /*	else if( m_envLfoParameters[static_cast<std::size_t>(Target::Volume)]->isUsed() == false && m_envLfoParameters[PANNING]->isUsed() )
 	{
 		// only use panning-envelope...
-		for( fpp_t frame = 0; frame < frames; ++frame )
+		for( f_cnt_t frame = 0; frame < frames; ++frame )
 		{
 			float vol_level = pan_buf[frame];
 			vol_level = vol_level*vol_level;
