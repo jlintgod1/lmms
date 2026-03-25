@@ -149,12 +149,14 @@ private:
 	FloatModel m_chorusLevel;
 	FloatModel m_chorusSpeed;
 	FloatModel m_chorusDepth;
-
+	
+	BoolModel m_envDelayOverrideOn;
 	BoolModel m_envAttackOverrideOn;
 	BoolModel m_envHoldOverrideOn;
 	BoolModel m_envDecayOverrideOn;
 	BoolModel m_envSustainOverrideOn;
 	BoolModel m_envReleaseOverrideOn;
+	TempoSyncKnobModel m_envDelay;
 	TempoSyncKnobModel m_envAttack;
 	TempoSyncKnobModel m_envHold;
 	TempoSyncKnobModel m_envDecay;
@@ -220,11 +222,13 @@ private:
 	Knob* m_chorusSpeedKnob;
 	Knob* m_chorusDepthKnob;
 
+	LedCheckBox* m_envDelayButton;
 	LedCheckBox* m_envAttackButton;
 	LedCheckBox* m_envHoldButton;
 	LedCheckBox* m_envDecayButton;
 	LedCheckBox* m_envSustainButton;
 	LedCheckBox* m_envReleaseButton;
+	TempoSyncKnob* m_envDelayKnob;
 	TempoSyncKnob* m_envAttackKnob;
 	TempoSyncKnob* m_envHoldKnob;
 	TempoSyncKnob* m_envDecayKnob;
