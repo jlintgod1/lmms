@@ -232,10 +232,18 @@ public:
 	{
 		return &m_randomPitchMinModel;
 	}
-
 	FloatModel* randomPitchMaxModel()
 	{
 		return &m_randomPitchMaxModel;
+	}
+
+	TempoSyncKnobModel* randomTimingMinModel()
+	{
+		return &m_randomTimingMinModel;
+	}
+	TempoSyncKnobModel* randomTimingMaxModel()
+	{
+		return &m_randomTimingMaxModel;
 	}
 
 	void setPreviewMode( const bool );
@@ -310,6 +318,8 @@ private:
 	BoolModel m_useMasterPitchModel;
 	FloatModel m_randomPitchMinModel;
 	FloatModel m_randomPitchMaxModel;
+	TempoSyncKnobModel m_randomTimingMinModel;
+	TempoSyncKnobModel m_randomTimingMaxModel;
 
 	Instrument * m_instrument;
 	InstrumentSoundShaping m_soundShaping;
