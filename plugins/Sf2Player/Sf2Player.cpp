@@ -144,11 +144,13 @@ Sf2Instrument::Sf2Instrument( InstrumentTrack * _instrument_track ) :
 	m_chorusLevel(FLUID_CHORUS_DEFAULT_LEVEL, 0, 10.f, 0.01f, this, tr("Chorus level")),
 	m_chorusSpeed(FLUID_CHORUS_DEFAULT_SPEED, 0.29f, 5.f, 0.01f, this, tr("Chorus speed")),
 	m_chorusDepth(FLUID_CHORUS_DEFAULT_DEPTH, 0, 46.f, 0.05f, this, tr("Chorus depth")),
+	m_envDelayOverrideOn(false, this, tr("Override Delay")),
 	m_envAttackOverrideOn(false, this, tr("Override Attack")),
 	m_envHoldOverrideOn(false, this, tr("Override Hold")),
 	m_envDecayOverrideOn(false, this, tr("Override Decay")),
 	m_envSustainOverrideOn(false, this, tr("Override Sustain")),
 	m_envReleaseOverrideOn(false, this, tr("Override Release")),
+	m_envDelay(0.001f, 0.001f, 100.0f, 0.001f, 100000.0f, this, tr("Delay Time")),
 	m_envAttack(0.001f, 0.001f, 100.0f, 0.001f, 100000.0f, this, tr("Attack Time")),
 	m_envHold(0.001f, 0.001f, 20.0f, 0.001f, 20000.0f, this, tr("Hold Time")),
 	m_envDecay(0.001f, 0.001f, 100.0f, 0.001f, 100000.0f, this, tr("Decay Time")),
@@ -234,6 +236,7 @@ Sf2Instrument::Sf2Instrument( InstrumentTrack * _instrument_track ) :
 	// Make models logarithmic since a user is more likely to set low envelope values
 	// (40s of attack time is just ridiculous)
 	// TODO: Currently nonfunctional until we find a different spot or way to update the knobs?
+	m_envDelay.setScaleLogarithmic();
 	m_envAttack.setScaleLogarithmic();
 	m_envHold.setScaleLogarithmic();
 	m_envDecay.setScaleLogarithmic();
@@ -278,12 +281,14 @@ void Sf2Instrument::saveSettings( QDomDocument & _doc, QDomElement & _this )
 	m_chorusSpeed.saveSettings(_doc, _this, "chorusSpeed");
 	m_chorusDepth.saveSettings(_doc, _this, "chorusDepth");
 
+	m_envDelayOverrideOn.saveSettings(_doc, _this, "envDelayOverrideOn");
 	m_envAttackOverrideOn.saveSettings(_doc, _this, "envAttackOverrideOn");
 	m_envHoldOverrideOn.saveSettings(_doc, _this, "envHoldOverrideOn");
 	m_envDecayOverrideOn.saveSettings(_doc, _this, "envDecayOverrideOn");
 	m_envSustainOverrideOn.saveSettings(_doc, _this, "envSustainOverrideOn");
 	m_envReleaseOverrideOn.saveSettings(_doc, _this, "envReleaseOverrideOn");
 
+	m_envDelay.saveSettings(_doc, _this, "envDelay");
 	m_envAttack.saveSettings(_doc, _this, "envAttack");
 	m_envHold.saveSettings(_doc, _this, "envHold");
 	m_envDecay.saveSettings(_doc, _this, "envDecay");
@@ -314,12 +319,14 @@ void Sf2Instrument::loadSettings( const QDomElement & _this )
 	m_chorusSpeed.loadSettings(_this, "chorusSpeed");
 	m_chorusDepth.loadSettings(_this, "chorusDepth");
 
+	m_envDelayOverrideOn.loadSettings(_this, "envDelayOverrideOn");
 	m_envAttackOverrideOn.loadSettings(_this, "envAttackOverrideOn");
 	m_envHoldOverrideOn.loadSettings(_this, "envHoldOverrideOn");
 	m_envDecayOverrideOn.loadSettings(_this, "envDecayOverrideOn");
 	m_envSustainOverrideOn.loadSettings(_this, "envSustainOverrideOn");
 	m_envReleaseOverrideOn.loadSettings(_this, "envReleaseOverrideOn");
 
+	m_envDelay.loadSettings(_this, "envDelay");
 	m_envAttack.loadSettings(_this, "envAttack");
 	m_envHold.loadSettings(_this, "envHold");
 	m_envDecay.loadSettings(_this, "envDecay");
@@ -960,23 +967,28 @@ void Sf2Instrument::updateEnvelopeForNote(Sf2PluginData* n)
 	{
 		if (voice.isValid())
 		{
-			// TODO: This could be refactored so we can use a loop rather than 5 random blocks.
+			// TODO: This could be refactored so we can use a loop rather than 6 random blocks.
 			//  (Also useful for adjusting envelopes of other generators like vibrato and filters) 
 
-			// Use of log2 based on the Soundfont 2.01 spec definition for a timecent and attackVolEnv generator 
+			// Use of std::log2 based on the Soundfont 2.01 spec definition for a timecent and ...VolEnv generator 
+			if (m_envDelayOverrideOn.value())
+			{
+				fluid_voice_gen_set(voice.get(), GEN_VOLENVDELAY, (std::log2(m_envDelay.value())*1200));
+				fluid_voice_update_param(voice.get(), GEN_VOLENVDELAY);
+			}
 			if (m_envAttackOverrideOn.value())
 			{
-				fluid_voice_gen_set(voice.get(), GEN_VOLENVATTACK, (log2(m_envAttack.value())*1200));
+				fluid_voice_gen_set(voice.get(), GEN_VOLENVATTACK, (std::log2(m_envAttack.value())*1200));
 				fluid_voice_update_param(voice.get(), GEN_VOLENVATTACK);
 			}
 			if (m_envHoldOverrideOn.value())
 			{
-				fluid_voice_gen_set(voice.get(), GEN_VOLENVHOLD, (log2(m_envHold.value())*1200));
+				fluid_voice_gen_set(voice.get(), GEN_VOLENVHOLD, (std::log2(m_envHold.value())*1200));
 				fluid_voice_update_param(voice.get(), GEN_VOLENVHOLD);
 			}
 			if (m_envDecayOverrideOn.value())
 			{
-				fluid_voice_gen_set(voice.get(), GEN_VOLENVDECAY, (log2(m_envDecay.value())*1200));
+				fluid_voice_gen_set(voice.get(), GEN_VOLENVDECAY, (std::log2(m_envDecay.value())*1200));
 				fluid_voice_update_param(voice.get(), GEN_VOLENVDECAY);
 			}
 			if (m_envSustainOverrideOn.value())
@@ -987,7 +999,7 @@ void Sf2Instrument::updateEnvelopeForNote(Sf2PluginData* n)
 			}
 			if (m_envReleaseOverrideOn.value())
 			{
-				fluid_voice_gen_set(voice.get(), GEN_VOLENVRELEASE, (log2(m_envRelease.value())*1200));
+				fluid_voice_gen_set(voice.get(), GEN_VOLENVRELEASE, (std::log2(m_envRelease.value())*1200));
 				fluid_voice_update_param(voice.get(), GEN_VOLENVRELEASE);
 			}
 		}
@@ -1193,50 +1205,59 @@ Sf2InstrumentView::Sf2InstrumentView( Instrument * _instrument, QWidget * _paren
 */
 
 	// Envelope/ADSR
+	m_envDelayButton = new LedCheckBox("", this, tr("Override Delay"), LedCheckBox::LedColor::Red);
+	m_envDelayButton->move(24, 10);
+	m_envDelayButton->setToolTip(tr("Override Delay"));
+
+	m_envDelayKnob = new TempoSyncKnob(KnobType::Bright26, tr("DEL"), this, Knob::LabelRendering::LegacyFixedFontSize);
+	m_envDelayKnob->setHintText(tr("Delay Time:"), " s");
+	m_envDelayKnob->move(14, 20);
+	m_envDelayKnob->setFixedSize(31, 38);
+
 	m_envAttackButton = new LedCheckBox("", this, tr("Override Attack"), LedCheckBox::LedColor::Red);
-	m_envAttackButton->move(64, 245);
+	m_envAttackButton->move(64, 10);
 	m_envAttackButton->setToolTip(tr("Override Attack"));
 
 	m_envAttackKnob = new TempoSyncKnob(KnobType::Bright26, tr("ATT"), this, Knob::LabelRendering::LegacyFixedFontSize);
 	m_envAttackKnob->setHintText(tr("Attack Time:"), " s");
-	m_envAttackKnob->move(54, 255);
+	m_envAttackKnob->move(54, 20);
 	m_envAttackKnob->setFixedSize(31, 38);
 
 	m_envHoldButton = new LedCheckBox("", this, tr("Override Hold"), LedCheckBox::LedColor::Red);
-	m_envHoldButton->move(104, 245);
+	m_envHoldButton->move(104, 10);
 	m_envHoldButton->setToolTip(tr("Override Hold"));
 
 	m_envHoldKnob = new TempoSyncKnob(KnobType::Bright26, tr("HOLD"), this, Knob::LabelRendering::LegacyFixedFontSize);
 	m_envHoldKnob->setHintText(tr("Hold Time:"), " s");
-	m_envHoldKnob->move(94, 255);
+	m_envHoldKnob->move(94, 20);
 	m_envHoldKnob->setFixedSize(31, 38);
 
 	m_envDecayButton = new LedCheckBox("", this, tr("Override Decay"), LedCheckBox::LedColor::Red);
-	m_envDecayButton->move(144, 245);
+	m_envDecayButton->move(144, 10);
 	m_envDecayButton->setToolTip(tr("Override Decay"));
 
 	m_envDecayKnob = new TempoSyncKnob(KnobType::Bright26, tr("DEC"), this, Knob::LabelRendering::LegacyFixedFontSize);
 	m_envDecayKnob->setHintText(tr("Decay Time:"), " s");
-	m_envDecayKnob->move(134, 255);
+	m_envDecayKnob->move(134, 20);
 	m_envDecayKnob->setFixedSize(31, 38);
 
 	m_envSustainButton = new LedCheckBox("", this, tr("Override Sustain"), LedCheckBox::LedColor::Red);
-	m_envSustainButton->move(184, 245);
+	m_envSustainButton->move(184, 10);
 	m_envSustainButton->setToolTip(tr("Override Sustain"));
 
 	m_envSustainKnob = new Sf2Knob(this);
 	m_envSustainKnob->setHintText(tr("Sustain Amount:"), "");
-	m_envSustainKnob->move(174, 255);
+	m_envSustainKnob->move(174, 20);
 	m_envSustainKnob->setknobNum(KnobType::Bright26);
 	m_envSustainKnob->setVolumeKnob(true);
 
 	m_envReleaseButton = new LedCheckBox("", this, tr("Override Release"), LedCheckBox::LedColor::Red);
-	m_envReleaseButton->move(224, 245);
+	m_envReleaseButton->move(224, 10);
 	m_envReleaseButton->setToolTip(tr("Override Release"));
 
 	m_envReleaseKnob = new TempoSyncKnob(KnobType::Bright26, tr("REL"), this, Knob::LabelRendering::LegacyFixedFontSize);
 	m_envReleaseKnob->setHintText(tr("Release Time:"), " s");
-	m_envReleaseKnob->move(214, 255);
+	m_envReleaseKnob->move(214, 20);
 	m_envReleaseKnob->setFixedSize(31, 38);
 
 	setAutoFillBackground( true );
@@ -1270,11 +1291,14 @@ void Sf2InstrumentView::modelChanged()
 	m_chorusSpeedKnob->setModel( &k->m_chorusSpeed );
 	m_chorusDepthKnob->setModel( &k->m_chorusDepth );
 	
+	m_envDelayButton->setModel(&k->m_envDelayOverrideOn);
 	m_envAttackButton->setModel(&k->m_envAttackOverrideOn);
 	m_envHoldButton->setModel(&k->m_envHoldOverrideOn);
 	m_envDecayButton->setModel(&k->m_envDecayOverrideOn);
 	m_envSustainButton->setModel(&k->m_envSustainOverrideOn);
 	m_envReleaseButton->setModel(&k->m_envReleaseOverrideOn);
+
+	m_envDelayKnob->setModel(&k->m_envDelay);
 	m_envAttackKnob->setModel(&k->m_envAttack);
 	m_envHoldKnob->setModel(&k->m_envHold);
 	m_envDecayKnob->setModel(&k->m_envDecay);
