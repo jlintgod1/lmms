@@ -41,6 +41,7 @@
 #include "MainWindow.h"
 #include "PixmapButton.h"
 #include "Knob.h"
+#include "TempoSyncKnob.h"
 
 
 namespace lmms::gui
@@ -53,7 +54,7 @@ InstrumentExperimentalView::InstrumentExperimentalView(InstrumentTrack *it, QWid
 	auto layout = new QVBoxLayout(this);
 	layout->setContentsMargins(5, 5, 5, 5);
 
-	// Humanized Pitch
+	// Humanized Pitch and Timing
 	m_humanizationNotSupportedLabel = new QLabel(tr("Humanization is not available for MIDI-based instruments."));
 	m_humanizationNotSupportedLabel->setWordWrap(true);
 	m_humanizationNotSupportedLabel->hide();
@@ -65,15 +66,25 @@ InstrumentExperimentalView::InstrumentExperimentalView(InstrumentTrack *it, QWid
 	auto humanizationLayout = new QHBoxLayout(m_humanizationGroupBox);
 	humanizationLayout->setContentsMargins(8, 18, 8, 8);
 
-	auto m_randomPitchMinKnob = new Knob(KnobType::Bright26, tr("Min"), this, Knob::LabelRendering::WidgetFont);
-	m_randomPitchMinKnob->setHintText( tr( "Random Pitch Min:" ), tr( " cents" ) );
+	auto m_randomPitchMinKnob = new Knob(KnobType::Bright26, tr("Pitch Min"), this, Knob::LabelRendering::WidgetFont);
+	m_randomPitchMinKnob->setHintText(tr( "Random Pitch Min:" ), tr( " cents" ));
 	m_randomPitchMinKnob->setModel(it->randomPitchMinModel());
 	humanizationLayout->addWidget(m_randomPitchMinKnob);
 
-	auto m_randomPitchMaxKnob = new Knob(KnobType::Bright26, tr("Max"), this, Knob::LabelRendering::WidgetFont);
-	m_randomPitchMaxKnob->setHintText( tr( "Random Pitch Max:" ), tr( " cents" ) );
+	auto m_randomPitchMaxKnob = new Knob(KnobType::Bright26, tr("Pitch Max"), this, Knob::LabelRendering::WidgetFont);
+	m_randomPitchMaxKnob->setHintText(tr( "Random Pitch Max:" ), tr( " cents" ));
 	m_randomPitchMaxKnob->setModel(it->randomPitchMaxModel());
 	humanizationLayout->addWidget(m_randomPitchMaxKnob);
+
+	auto m_randomTimingMinKnob = new TempoSyncKnob(KnobType::Bright26, tr("Timing Min"), this, Knob::LabelRendering::WidgetFont);
+	m_randomTimingMinKnob->setHintText(tr( "Random Timing Min:" ), tr( " s" ));
+	m_randomTimingMinKnob->setModel(it->randomTimingMinModel());
+	humanizationLayout->addWidget(m_randomTimingMinKnob);
+
+	auto m_randomTimingMaxKnob = new TempoSyncKnob(KnobType::Bright26, tr("Timing Max"), this, Knob::LabelRendering::WidgetFont);
+	m_randomTimingMaxKnob->setHintText(tr( "Random Timing Max:" ), tr( " s" ));
+	m_randomTimingMaxKnob->setModel(it->randomTimingMaxModel());
+	humanizationLayout->addWidget(m_randomTimingMaxKnob);
 
 	// Fill remaining space
 	layout->addStretch();
