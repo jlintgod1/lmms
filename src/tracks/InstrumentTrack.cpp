@@ -41,6 +41,7 @@
 #include "PianoRoll.h"
 #include "Pitch.h"
 #include "Song.h"
+#include "lmms_math.h"
 
 namespace lmms
 {
@@ -67,6 +68,8 @@ InstrumentTrack::InstrumentTrack(TrackContainer* tc) :
 	m_useMasterPitchModel(true, this, tr("Master pitch")),
 	m_randomPitchMinModel(0, MinPitchDefault, MaxPitchDefault, 1, this, tr("Min Random Pitch")),
 	m_randomPitchMaxModel(0, MinPitchDefault, MaxPitchDefault, 1, this, tr("Max Random Pitch")),
+	m_randomTimingMinModel(0, 0, 1, 0.01, 1000, this, tr("Min Random Timing")),
+	m_randomTimingMaxModel(0, 0, 1, 0.01, 1000, this, tr("Max Random Timing")),
 	m_instrument(nullptr),
 	m_soundShaping(this),
 	m_arpeggio(this),
@@ -788,7 +791,7 @@ bool InstrumentTrack::play( const TimePos & _start, const f_cnt_t _frames,
 				? 0
 				: (currentNote->endPos() - cur_start - noteOverlap) * frames_per_tick;
 
-			NotePlayHandle* notePlayHandle = NotePlayHandleManager::acquire(this, _offset, noteFrames, *currentNote);
+			NotePlayHandle* notePlayHandle = NotePlayHandleManager::acquire(this, _offset + static_cast<f_cnt_t>(lmms::fastRandInc(randomTimingMinModel()->value(), randomTimingMaxModel()->value()) * Engine::audioEngine()->outputSampleRate()), noteFrames, *currentNote);
 			notePlayHandle->setPatternTrack(pattern_track);
 			// are we playing global song?
 			if( _clip_num < 0 )
@@ -842,6 +845,8 @@ void InstrumentTrack::saveTrackSpecificSettings(QDomDocument& doc, QDomElement& 
 	m_useMasterPitchModel.saveSettings( doc, thisElement, "usemasterpitch");
 	m_randomPitchMinModel.saveSettings( doc, thisElement, "randompitch_min" );
 	m_randomPitchMaxModel.saveSettings( doc, thisElement, "randompitch_max" );
+	m_randomTimingMinModel.saveSettings( doc, thisElement, "randomtiming_min" );
+	m_randomTimingMaxModel.saveSettings( doc, thisElement, "randomtiming_max" );
 	m_microtuner.saveSettings(doc, thisElement);
 
 	// Save MIDI CC stuff
@@ -917,6 +922,8 @@ void InstrumentTrack::loadTrackSpecificSettings( const QDomElement & thisElement
 	m_useMasterPitchModel.loadSettings( thisElement, "usemasterpitch");
 	m_randomPitchMinModel.loadSettings( thisElement, "randompitch_min" );
 	m_randomPitchMaxModel.loadSettings( thisElement, "randompitch_max" );
+	m_randomTimingMinModel.loadSettings( thisElement, "randomtiming_min" );
+	m_randomTimingMaxModel.loadSettings( thisElement, "randomtiming_max" );
 	m_microtuner.loadSettings(thisElement);
 
 	// clear effect-chain just in case we load an old preset without FX-data
