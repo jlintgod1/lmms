@@ -43,6 +43,7 @@
 #include "PixmapButton.h"
 #include "Song.h"
 #include "fluidsynthshims.h"
+#include "lmms_math.h"
 
 #include "PatchesDialog.h"
 #include "LcdSpinBox.h"
@@ -990,7 +991,7 @@ void Sf2Instrument::updateEnvelopeForNote(Sf2PluginData* n)
 			if (m_envSustainOverrideOn.value())
 			{
 				// TODO: Figure out what values actually correspond to different decibel values (on Fluidsynth/Soundfont's side)
-				fluid_voice_gen_set(voice.get(), GEN_VOLENVSUSTAIN, (1 - (m_envSustain.value() / 100.0f)) * 1000 * (96.0f / 144.0f));
+				fluid_voice_gen_set(voice.get(), GEN_VOLENVSUSTAIN, lmms::safeAmpToDbfs(m_envSustain.value() / 100.0) * -10);
 				fluid_voice_update_param(voice.get(), GEN_VOLENVSUSTAIN);
 			}
 			if (m_envReleaseOverrideOn.value())
@@ -1246,6 +1247,7 @@ Sf2InstrumentView::Sf2InstrumentView( Instrument * _instrument, QWidget * _paren
 	m_envSustainKnob->move(174, 20);
 	m_envSustainKnob->setknobNum(KnobType::Bright26);
 	m_envSustainKnob->setVolumeKnob(true);
+	m_envSustainKnob->setHintText( tr( "Sustain Amount:" ), "%" );
 
 	m_envReleaseButton = new LedCheckBox("", this, tr("Override Release"), LedCheckBox::LedColor::Red);
 	m_envReleaseButton->move(224, 10);
