@@ -1242,12 +1242,10 @@ Sf2InstrumentView::Sf2InstrumentView( Instrument * _instrument, QWidget * _paren
 	m_envSustainButton->move(184, 10);
 	m_envSustainButton->setToolTip(tr("Override Sustain"));
 
-	m_envSustainKnob = new Sf2Knob(this);
+	m_envSustainKnob = new VolumeKnob(KnobType::Bright26, tr("SUS"), this, Knob::LabelRendering::LegacyFixedFontSize);
 	m_envSustainKnob->setHintText(tr("Sustain Amount:"), "");
 	m_envSustainKnob->move(174, 20);
-	m_envSustainKnob->setknobNum(KnobType::Bright26);
-	m_envSustainKnob->setVolumeKnob(true);
-	m_envSustainKnob->setHintText( tr( "Sustain Amount:" ), "%" );
+	m_envSustainKnob->setFixedSize(31, 38);
 
 	m_envReleaseButton = new LedCheckBox("", this, tr("Override Release"), LedCheckBox::LedColor::Red);
 	m_envReleaseButton->move(224, 10);
