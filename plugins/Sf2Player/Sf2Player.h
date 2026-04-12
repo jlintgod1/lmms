@@ -107,6 +107,7 @@ public slots:
 	void updateChorus();
 	void updateGain();
 	void updateTuning();
+	void updateEnvelope();
 
 private:
 	AudioResampler m_resampler;
@@ -173,7 +174,7 @@ private:
 	void noteOff( Sf2PluginData * n );
 	void renderFrames( f_cnt_t frames, SampleFrame* buf );
 
-	void updateEnvelopeForNote(Sf2PluginData* n);
+	void updateEnvelopeForVoice(fluid_voice_t* voice);
 
 	friend class gui::Sf2InstrumentView;
 
