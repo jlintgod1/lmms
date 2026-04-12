@@ -41,6 +41,7 @@
 #include "NotePlayHandle.h"
 #include "PathUtil.h"
 #include "PixmapButton.h"
+#include "ComboBox.h"
 #include "Song.h"
 #include "fluidsynthshims.h"
 #include "lmms_math.h"
@@ -156,7 +157,8 @@ Sf2Instrument::Sf2Instrument( InstrumentTrack * _instrument_track ) :
 	m_envHold(0.001f, 0.001f, 20.0f, 0.001f, 20000.0f, this, tr("Hold Time")),
 	m_envDecay(0.001f, 0.001f, 100.0f, 0.001f, 100000.0f, this, tr("Decay Time")),
 	m_envSustain(100.0f, 0.0f, 100.0f, 1.0f, this, tr("Sustain Amount")),
-	m_envRelease(0.001f, 0.001f, 100.0f, 0.001f, 100000.0f, this, tr("Release Time"))
+	m_envRelease(0.001f, 0.001f, 100.0f, 0.001f, 100000.0f, this, tr("Release Time")),
+	m_interpolationModel(this, tr( "Interpolation Mode" ))
 {
 
 
@@ -257,6 +259,12 @@ Sf2Instrument::Sf2Instrument( InstrumentTrack * _instrument_track ) :
 	m_envDecay.setScaleLogarithmic(true);
 	m_envRelease.setScaleLogarithmic(true);
 
+	m_interpolationModel.addItem(tr( "None" ));
+	m_interpolationModel.addItem(tr( "Linear" ));
+	m_interpolationModel.addItem(tr( "Quartic (4th Order)" ));
+	m_interpolationModel.addItem(tr( "Sinc (7th Order)" ));
+	connect(&m_interpolationModel, &Model::dataChanged, this, &Sf2Instrument::updateInterpolation);
+	//m_interpolationModel.setValue(2); // Causes issues when loading old files for some reason?
 
 	auto iph = new InstrumentPlayHandle(this, _instrument_track);
 	Engine::audioEngine()->addPlayHandle( iph );
@@ -309,6 +317,8 @@ void Sf2Instrument::saveSettings( QDomDocument & _doc, QDomElement & _this )
 	m_envDecay.saveSettings(_doc, _this, "envDecay");
 	m_envSustain.saveSettings(_doc, _this, "envSustain");
 	m_envRelease.saveSettings(_doc, _this, "envRelease");
+
+	m_interpolationModel.saveSettings(_doc, _this, "interpolationMode");
 }
 
 
@@ -347,6 +357,15 @@ void Sf2Instrument::loadSettings( const QDomElement & _this )
 	m_envDecay.loadSettings(_this, "envDecay");
 	m_envSustain.loadSettings(_this, "envSustain");
 	m_envRelease.loadSettings(_this, "envRelease");
+
+	if (_this.hasAttribute("interpolationMode") || !_this.firstChildElement("interpolationMode").isNull())
+	{
+		m_interpolationModel.loadSettings(_this, "interpolationMode");
+	}
+	else
+	{
+		m_interpolationModel.setValue(2); // 4th Order by default
+	}
 }
 
 
@@ -644,6 +663,54 @@ void Sf2Instrument::updateTuning()
 	}
 }
 
+// TODO: Test that the resampler/Fluidsynth with a different interp mode works and sounds right
+void Sf2Instrument::updateInterpolation()
+{
+	m_synthMutex.lock(); // :(
+	
+	/*
+	if (m_internalSampleRate != Engine::audioEngine()->outputSampleRate())
+	{
+		// LMMS supports a sample rate of 192 kHZ, while FluidSynth only supports up to 96 kHZ.
+		// Because of this, the instrument is resampled using libsamplerate when necessary.
+		// This uses linear interpolation, so the instrument's interpolation is set to FLUID_INTERP_LINEAR
+		// to match. A better option might be to make the interpolation option modifiable by the user, as well as only
+		// supporting only up to 96 kHZ (though that may be a problem if theres a strong need for 192 kHZ).
+		fluid_synth_set_interp_method(m_synth, -1, FLUID_INTERP_LINEAR);
+	} 
+	else*/
+	{
+		auto fluidInterpolationMode = FLUID_INTERP_4THORDER;
+		auto interpolationMode = AudioResampler::Mode::SincMedium;
+		switch (m_interpolationModel.value()) 
+		{
+			case 0:
+				fluidInterpolationMode = FLUID_INTERP_NONE;
+				interpolationMode = AudioResampler::Mode::ZOH;
+				break;
+			case 1:
+				fluidInterpolationMode = FLUID_INTERP_LINEAR;
+				interpolationMode = AudioResampler::Mode::Linear;
+				break;
+			case 2:
+				fluidInterpolationMode = FLUID_INTERP_4THORDER;
+				interpolationMode = AudioResampler::Mode::SincMedium;
+				break;
+			case 3:
+				fluidInterpolationMode = FLUID_INTERP_7THORDER;
+				interpolationMode = AudioResampler::Mode::SincMedium;
+				break;
+		}
+
+		fluid_synth_set_interp_method(m_synth, -1, fluidInterpolationMode);
+
+		// TODO: Can we make a setter function for AudioResampler's mode? 
+		m_resampler = AudioResampler(interpolationMode);
+		m_resampler.setRatio(m_internalSampleRate, Engine::audioEngine()->outputSampleRate());
+	}
+
+	m_synthMutex.unlock(); // Huh?
+}
 
 
 void Sf2Instrument::reloadSynth()
@@ -684,26 +751,13 @@ void Sf2Instrument::reloadSynth()
 		m_synthMutex.unlock();
 	}
 
-	m_synthMutex.lock();
-
-	if (m_internalSampleRate != Engine::audioEngine()->outputSampleRate())
-	{
-		// LMMS supports a sample rate of 192 kHZ, while FluidSynth only supports up to 96 kHZ.
-		// Because of this, the instrument is resampled using libsamplerate when necessary.
-		// This uses linear interpolation, so the instrument's interpolation is set to FLUID_INTERP_LINEAR
-		// to match. A better option might be to make the interpolation option modifiable by the user, as well as only
-		// supporting only up to 96 kHZ (though that may be a problem if theres a strong need for 192 kHZ).
-		fluid_synth_set_interp_method(m_synth, -1, FLUID_INTERP_LINEAR);
-	}
-
-	m_synthMutex.unlock();
-
 	updateReverb();
 	updateChorus();
 	updateReverbOn();
 	updateChorusOn();
 	updateGain();
 	updateTuning();
+	updateInterpolation();
 
 	// Reset last MIDI pitch properties, which will be set to the correct values
 	// upon playing the next note
@@ -1279,6 +1333,10 @@ Sf2InstrumentView::Sf2InstrumentView( Instrument * _instrument, QWidget * _paren
 	m_envReleaseKnob->move(214, 20);
 	m_envReleaseKnob->setFixedSize(31, 38);
 
+	// Interpolation Mode
+	m_interpolationBox = new ComboBox(this, "Interpolation Mode");
+	m_interpolationBox->setGeometry(12, 145, 98, ComboBox::DEFAULT_HEIGHT);
+
 	setAutoFillBackground( true );
 	QPalette pal;
 	pal.setBrush( backgroundRole(), PLUGIN_NAME::getIconPixmap( "artwork" ) );
@@ -1324,6 +1382,7 @@ void Sf2InstrumentView::modelChanged()
 	m_envSustainKnob->setModel(&k->m_envSustain);
 	m_envReleaseKnob->setModel(&k->m_envRelease);
 
+	m_interpolationBox->setModel(&k->m_interpolationModel);
 
 	connect( k, SIGNAL( fileChanged() ), this, SLOT( updateFilename() ) );
 
