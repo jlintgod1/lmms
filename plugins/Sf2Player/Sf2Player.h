@@ -40,6 +40,7 @@
 #include "SampleFrame.h"
 #include "TempoSyncKnob.h"
 #include "LedCheckBox.h"
+#include "ComboBoxModel.h"
 
 class QLabel;
 
@@ -54,6 +55,7 @@ namespace gui
 {
 class Knob;
 class PixmapButton;
+class ComboBox;
 class Sf2InstrumentView;
 class PatchesDialog;
 } // namespace gui
@@ -90,7 +92,7 @@ public:
 	
 	QString getCurrentPatchName();
 
-
+	// TODO: This doesn't seem used at all?
 	void setParameter( const QString & _param, const QString & _value );
 
 
@@ -108,6 +110,7 @@ public slots:
 	void updateGain();
 	void updateTuning();
 	void updateEnvelope();
+	void updateInterpolation();
 
 private:
 	AudioResampler m_resampler;
@@ -164,6 +167,8 @@ private:
 	TempoSyncKnobModel m_envDecay;
 	FloatModel m_envSustain;
 	TempoSyncKnobModel m_envRelease;
+
+	ComboBoxModel m_interpolationModel;
 
 	QVector<NotePlayHandle *> m_playingNotes;
 	QMutex m_playingNotesMutex;
@@ -234,8 +239,9 @@ private:
 	TempoSyncKnob* m_envAttackKnob;
 	TempoSyncKnob* m_envHoldKnob;
 	TempoSyncKnob* m_envDecayKnob;
-	Knob* m_envSustainKnob;
+	VolumeKnob* m_envSustainKnob;
 	TempoSyncKnob* m_envReleaseKnob;
+	ComboBox* m_interpolationBox;
 
 	static PatchesDialog* s_patchDialog;
 
