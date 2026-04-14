@@ -808,7 +808,7 @@ void FileBrowserTreeWidget::previewFileItem(FileItem* file)
 	}
 	else if (
 		(ext == "xiz" || ext == "sf2" || ext == "sf3" ||
-		 ext == "gig" || ext == "pat")
+		 ext == "dls" || ext == "gig" || ext == "pat")
 		&& !getPluginFactory()->pluginSupportingExtension(ext).isNull())
 	{
 		const bool isPlugin = file->handling() == FileItem::FileHandling::LoadByPlugin;
@@ -1241,7 +1241,7 @@ void FileItem::determineFileType()
 		m_type = FileType::Preset;
 		m_handling = FileHandling::LoadByPlugin;
 	}
-	else if( ext == "sf2" || ext == "sf3" )
+	else if( ext == "sf2" || ext == "sf3" || ext == "dls" )
 	{
 		m_type = FileType::SoundFont;
 	}
@@ -1312,7 +1312,7 @@ QString FileItem::defaultFilters()
 {
 	const auto projectFilters = QStringList{"*.mmp", "*.mpt", "*.mmpz"};
 	const auto presetFilters = QStringList{"*.xpf", "*.xml", "*.xiz", "*.lv2"};
-	const auto soundFontFilters = QStringList{"*.sf2", "*.sf3"};
+	const auto soundFontFilters = QStringList{"*.sf2", "*.sf3", "*.dls"};
 	const auto patchFilters = QStringList{"*.pat"};
 	const auto midiFilters = QStringList{"*.mid", "*.midi", "*.rmi"};
 	
