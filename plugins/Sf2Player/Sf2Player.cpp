@@ -264,7 +264,7 @@ Sf2Instrument::Sf2Instrument( InstrumentTrack * _instrument_track ) :
 	m_interpolationModel.addItem(tr( "Quartic (4th Order)" ));
 	m_interpolationModel.addItem(tr( "Sinc (7th Order)" ));
 	connect(&m_interpolationModel, &Model::dataChanged, this, &Sf2Instrument::updateInterpolation);
-	//m_interpolationModel.setValue(2); // Causes issues when loading old files for some reason?
+	m_interpolationModel.setValue(2);
 
 	auto iph = new InstrumentPlayHandle(this, _instrument_track);
 	Engine::audioEngine()->addPlayHandle( iph );
@@ -365,6 +365,7 @@ void Sf2Instrument::loadSettings( const QDomElement & _this )
 	else
 	{
 		m_interpolationModel.setValue(2); // 4th Order by default
+		updateInterpolation(); // Force update
 	}
 }
 
