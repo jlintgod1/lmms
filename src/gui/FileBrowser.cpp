@@ -700,10 +700,10 @@ void FileBrowserTreeWidget::openInSlicerT(FileItem* item, bool songEditor)
 {
 	// Get the right TrackContainer. Ternary doesn't compile due to a type mismatch
 	// (similar to FileBrowserTreeWidget::openInNewInstrumentTrack)
-    TrackContainer* tc = Engine::getSong();
+	TrackContainer* tc = Engine::getSong();
 	if (!songEditor) { tc = Engine::patternStore(); }
 
-    auto* track = dynamic_cast<InstrumentTrack*>(Track::create(Track::Type::Instrument, tc));
+	auto* track = dynamic_cast<InstrumentTrack*>(Track::create(Track::Type::Instrument, tc));
 
 	track->loadInstrument("slicert");
 	track->instrument()->loadFile(item->fullName());
