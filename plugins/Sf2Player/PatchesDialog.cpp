@@ -463,7 +463,7 @@ void PatchesDialog::diffSelectProgRow(int offset)
 	int curRow = selectionModel->currentIndex().row();
 	int newRow = curRow + offset;
 	int rowCount = m_progListView->model()->rowCount();
-	newRow = qBound(0, newRow, rowCount - 1);
+	newRow = rowCount == 0 ? 0 : qBound(0, newRow, rowCount - 1);
 
 	constexpr auto selMask = QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows;
 	const auto idx = m_progListView->model()->index(newRow, 0);
