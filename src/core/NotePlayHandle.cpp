@@ -543,7 +543,7 @@ void NotePlayHandle::updateFrequency()
 		if (m_instrumentTrack->isKeyMapped(transposedKey))
 		{
 			const auto frequency = m_instrumentTrack->m_microtuner.keyToFreq(transposedKey, baseNote);
-			m_frequency = frequency * std::exp2((detune + instrumentPitch / 100 + m_pitchEnvelope) / 12.f);
+			m_frequency = frequency * std::exp2((detune + instrumentPitch / 100 + m_additionalRandomFrequency + m_pitchEnvelope) / 12.f);
 			m_unpitchedFrequency = frequency * std::exp2(detune / 12.f);
 		}
 		else
@@ -554,7 +554,7 @@ void NotePlayHandle::updateFrequency()
 	else
 	{
 		// default key mapping and 12-TET frequency computation with default 440 Hz base note frequency
-		const float pitch = (key() - baseNote + masterPitch + detune + m_pitchEnvelope) / 12.0f;
+		const float pitch = (key() - baseNote + masterPitch + detune + m_additionalRandomFrequency + m_pitchEnvelope) / 12.0f;
 		m_frequency = DefaultBaseFreq * std::exp2(pitch + instrumentPitch / (100 * 12.0f));
 		m_unpitchedFrequency = DefaultBaseFreq * std::exp2(pitch);
 	}
@@ -578,7 +578,7 @@ void NotePlayHandle::processTimePos(const TimePos& time, float pitchValue, bool 
 	}
 	else
 	{
-		const float v = detuning()->automationClip()->valueAt(time - songGlobalParentOffset() - pos()) + m_additionalRandomFrequency;
+		const float v = detuning()->automationClip()->valueAt(time - songGlobalParentOffset() - pos());
 		if (!approximatelyEqual(v, m_baseDetuning->value()))
 		{
 			m_baseDetuning->setValue(v);
