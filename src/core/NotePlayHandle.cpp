@@ -99,7 +99,14 @@ NotePlayHandle::NotePlayHandle( InstrumentTrack* instrumentTrack,
 		parent->setUsesBuffer( false );
 	}
 
-	m_additionalRandomFrequency = lmms::fastRand(m_instrumentTrack->randomPitchMinModel()->value(), m_instrumentTrack->randomPitchMaxModel()->value()) / 100.f;
+	if (m_instrumentTrack->perKeyRandomPitch()->value())
+	{
+		m_additionalRandomFrequency = (m_instrumentTrack->randomPitchMinModel()->value() + (m_instrumentTrack->randomPitchMaxModel()->value() - m_instrumentTrack->randomPitchMinModel()->value()) * lmms::fraction(key() * 123459.0f / 100.0f)) / 100.0f;
+	}
+	else
+	{
+		m_additionalRandomFrequency = lmms::fastRand(m_instrumentTrack->randomPitchMinModel()->value(), m_instrumentTrack->randomPitchMaxModel()->value()) / 100.f;
+	}
 	updateFrequency();
 
 	setFrames( _frames );
@@ -238,7 +245,7 @@ void NotePlayHandle::play( SampleFrame* _working_buffer )
 	const float lastPitchEnv = m_pitchEnvelope;
 	if (m_instrumentTrack->m_soundShaping.getPitchParameters().isUsed())
 	{
-		m_pitchEnvelope = m_instrumentTrack->m_soundShaping.pitchOffset(this, m_totalFramesPlayed);
+		m_pitchEnvelope = m_instrumentTrack->m_soundShaping.pitchOffset(this, m_totalFramesPlayed) * instrumentTrack()->pitchRangeModel()->value();
 	}
 	else
 	{
