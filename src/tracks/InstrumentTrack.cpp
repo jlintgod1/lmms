@@ -68,6 +68,7 @@ InstrumentTrack::InstrumentTrack(TrackContainer* tc) :
 	m_useMasterPitchModel(true, this, tr("Master pitch")),
 	m_randomPitchMinModel(0, MinPitchDefault, MaxPitchDefault, 1, this, tr("Min Random Pitch")),
 	m_randomPitchMaxModel(0, MinPitchDefault, MaxPitchDefault, 1, this, tr("Max Random Pitch")),
+	m_perKeyRandomPitch(false, this, tr("Per Key Random Pitch")),
 	m_randomTimingMinModel(0, 0, 1, 0.01, 1000, this, tr("Min Random Timing")),
 	m_randomTimingMaxModel(0, 0, 1, 0.01, 1000, this, tr("Max Random Timing")),
 	m_instrument(nullptr),
@@ -833,20 +834,21 @@ gui::TrackView* InstrumentTrack::createView( gui::TrackContainerView* tcv )
 
 void InstrumentTrack::saveTrackSpecificSettings(QDomDocument& doc, QDomElement& thisElement, bool presetMode)
 {
-	m_volumeModel.saveSettings( doc, thisElement, "vol" );
-	m_panningModel.saveSettings( doc, thisElement, "pan" );
-	m_pitchModel.saveSettings( doc, thisElement, "pitch" );
-	m_pitchRangeModel.saveSettings( doc, thisElement, "pitchrange" );
+	m_volumeModel.saveSettings(doc, thisElement, "vol");
+	m_panningModel.saveSettings(doc, thisElement, "pan");
+	m_pitchModel.saveSettings(doc, thisElement, "pitch");
+	m_pitchRangeModel.saveSettings(doc, thisElement, "pitchrange");
 
-	m_mixerChannelModel.saveSettings( doc, thisElement, "mixch" );
-	m_baseNoteModel.saveSettings( doc, thisElement, "basenote" );
+	m_mixerChannelModel.saveSettings(doc, thisElement, "mixch");
+	m_baseNoteModel.saveSettings(doc, thisElement, "basenote");
 	m_firstKeyModel.saveSettings(doc, thisElement, "firstkey");
 	m_lastKeyModel.saveSettings(doc, thisElement, "lastkey");
-	m_useMasterPitchModel.saveSettings( doc, thisElement, "usemasterpitch");
-	m_randomPitchMinModel.saveSettings( doc, thisElement, "randompitch_min" );
-	m_randomPitchMaxModel.saveSettings( doc, thisElement, "randompitch_max" );
-	m_randomTimingMinModel.saveSettings( doc, thisElement, "randomtiming_min" );
-	m_randomTimingMaxModel.saveSettings( doc, thisElement, "randomtiming_max" );
+	m_useMasterPitchModel.saveSettings(doc, thisElement, "usemasterpitch");
+	m_randomPitchMinModel.saveSettings(doc, thisElement, "randompitch_min");
+	m_randomPitchMaxModel.saveSettings(doc, thisElement, "randompitch_max");
+	m_perKeyRandomPitch.saveSettings(doc, thisElement, "randompitch_perkey");
+	m_randomTimingMinModel.saveSettings(doc, thisElement, "randomtiming_min");
+	m_randomTimingMaxModel.saveSettings(doc, thisElement, "randomtiming_max");
 	m_microtuner.saveSettings(doc, thisElement);
 
 	// Save MIDI CC stuff
@@ -907,23 +909,24 @@ void InstrumentTrack::loadTrackSpecificSettings( const QDomElement & thisElement
 
 	lock();
 
-	m_volumeModel.loadSettings( thisElement, "vol" );
-	m_panningModel.loadSettings( thisElement, "pan" );
-	m_pitchRangeModel.loadSettings( thisElement, "pitchrange" );
-	m_pitchModel.loadSettings( thisElement, "pitch" );
-	m_mixerChannelModel.setRange( 0, Engine::mixer()->numChannels()-1 );
+	m_volumeModel.loadSettings(thisElement, "vol");
+	m_panningModel.loadSettings(thisElement, "pan");
+	m_pitchRangeModel.loadSettings(thisElement, "pitchrange");
+	m_pitchModel.loadSettings(thisElement, "pitch");
+	m_mixerChannelModel.setRange(0, Engine::mixer()->numChannels()-1);
 	if ( !m_previewMode )
 	{
 		m_mixerChannelModel.loadSettings( thisElement, "mixch" );
 	}
-	m_baseNoteModel.loadSettings( thisElement, "basenote" );
+	m_baseNoteModel.loadSettings(thisElement, "basenote");
 	m_firstKeyModel.loadSettings(thisElement, "firstkey");
 	m_lastKeyModel.loadSettings(thisElement, "lastkey");
-	m_useMasterPitchModel.loadSettings( thisElement, "usemasterpitch");
-	m_randomPitchMinModel.loadSettings( thisElement, "randompitch_min" );
-	m_randomPitchMaxModel.loadSettings( thisElement, "randompitch_max" );
-	m_randomTimingMinModel.loadSettings( thisElement, "randomtiming_min" );
-	m_randomTimingMaxModel.loadSettings( thisElement, "randomtiming_max" );
+	m_useMasterPitchModel.loadSettings(thisElement, "usemasterpitch");
+	m_randomPitchMinModel.loadSettings(thisElement, "randompitch_min");
+	m_randomPitchMaxModel.loadSettings(thisElement, "randompitch_max");
+	m_perKeyRandomPitch.loadSettings(thisElement, "randompitch_perkey");
+	m_randomTimingMinModel.loadSettings(thisElement, "randomtiming_min");
+	m_randomTimingMaxModel.loadSettings(thisElement, "randomtiming_max");
 	m_microtuner.loadSettings(thisElement);
 
 	// clear effect-chain just in case we load an old preset without FX-data

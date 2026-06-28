@@ -63,28 +63,39 @@ InstrumentExperimentalView::InstrumentExperimentalView(InstrumentTrack *it, QWid
 	m_humanizationGroupBox = new GroupBox(tr("HUMANIZATION"));
 	layout->addWidget(m_humanizationGroupBox);
 	
-	auto humanizationLayout = new QHBoxLayout(m_humanizationGroupBox);
+	auto humanizationLayout = new QGridLayout(m_humanizationGroupBox);
 	humanizationLayout->setContentsMargins(8, 18, 8, 8);
+	humanizationLayout->setColumnStretch( 0, 1 );
+	humanizationLayout->setHorizontalSpacing( 20 );
+	humanizationLayout->setVerticalSpacing( 1 );
 
-	auto m_randomPitchMinKnob = new Knob(KnobType::Bright26, tr("Pitch Min"), this, Knob::LabelRendering::WidgetFont);
+	auto m_randomPitchMinKnob = new Knob(KnobType::Bright26, tr("PITCH MIN"), this, Knob::LabelRendering::WidgetFont);
 	m_randomPitchMinKnob->setHintText(tr( "Random Pitch Min:" ), tr( " cents" ));
 	m_randomPitchMinKnob->setModel(it->randomPitchMinModel());
-	humanizationLayout->addWidget(m_randomPitchMinKnob);
+	humanizationLayout->addWidget(m_randomPitchMinKnob, 0, 0, 2, 1, Qt::AlignHCenter);
 
-	auto m_randomPitchMaxKnob = new Knob(KnobType::Bright26, tr("Pitch Max"), this, Knob::LabelRendering::WidgetFont);
+	auto m_randomPitchMaxKnob = new Knob(KnobType::Bright26, tr("PITCH MAX"), this, Knob::LabelRendering::WidgetFont);
 	m_randomPitchMaxKnob->setHintText(tr( "Random Pitch Max:" ), tr( " cents" ));
 	m_randomPitchMaxKnob->setModel(it->randomPitchMaxModel());
-	humanizationLayout->addWidget(m_randomPitchMaxKnob);
+	humanizationLayout->addWidget(m_randomPitchMaxKnob, 0, 1, 2, 1, Qt::AlignHCenter);
 
-	auto m_randomTimingMinKnob = new TempoSyncKnob(KnobType::Bright26, tr("Timing Min"), this, Knob::LabelRendering::WidgetFont);
+	auto m_randomTimingMinKnob = new TempoSyncKnob(KnobType::Bright26, tr("TIMING MIN"), this, Knob::LabelRendering::WidgetFont);
 	m_randomTimingMinKnob->setHintText(tr( "Random Timing Min:" ), tr( " s" ));
 	m_randomTimingMinKnob->setModel(it->randomTimingMinModel());
-	humanizationLayout->addWidget(m_randomTimingMinKnob);
+	humanizationLayout->addWidget(m_randomTimingMinKnob, 3, 0, 2, 1, Qt::AlignHCenter);
 
-	auto m_randomTimingMaxKnob = new TempoSyncKnob(KnobType::Bright26, tr("Timing Max"), this, Knob::LabelRendering::WidgetFont);
+	auto m_randomTimingMaxKnob = new TempoSyncKnob(KnobType::Bright26, tr("TIMING MAX"), this, Knob::LabelRendering::WidgetFont);
 	m_randomTimingMaxKnob->setHintText(tr( "Random Timing Max:" ), tr( " s" ));
 	m_randomTimingMaxKnob->setModel(it->randomTimingMaxModel());
-	humanizationLayout->addWidget(m_randomTimingMaxKnob);
+	humanizationLayout->addWidget(m_randomTimingMaxKnob, 3, 1, 2, 1, Qt::AlignHCenter | Qt::AlignBottom);
+
+	auto m_perKeyRandomPitchToggle = new LedCheckBox(tr(""), this, QString(), lmms::gui::LedCheckBox::LedColor::Green);
+	m_perKeyRandomPitchToggle->setModel(it->perKeyRandomPitch());
+	humanizationLayout->addWidget(m_perKeyRandomPitchToggle, 0, 2, Qt::AlignCenter);
+
+	auto m_perKeyRandomPitchLabel = new QLabel(tr("PER KEY"), this);
+	m_perKeyRandomPitchLabel->setStyleSheet("font-size: 12px;");
+	humanizationLayout->addWidget(m_perKeyRandomPitchLabel, 1, 2, Qt::AlignHCenter | Qt::AlignTop);
 
 	// Fill remaining space
 	layout->addStretch();

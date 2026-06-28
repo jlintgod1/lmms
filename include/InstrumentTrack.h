@@ -236,6 +236,10 @@ public:
 	{
 		return &m_randomPitchMaxModel;
 	}
+	BoolModel* perKeyRandomPitch()
+	{
+		return &m_perKeyRandomPitch;
+	}
 
 	TempoSyncKnobModel* randomTimingMinModel()
 	{
@@ -321,6 +325,7 @@ private:
 	BoolModel m_useMasterPitchModel;
 	FloatModel m_randomPitchMinModel;
 	FloatModel m_randomPitchMaxModel;
+	BoolModel m_perKeyRandomPitch;
 	TempoSyncKnobModel m_randomTimingMinModel;
 	TempoSyncKnobModel m_randomTimingMaxModel;
 
