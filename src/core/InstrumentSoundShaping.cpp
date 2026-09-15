@@ -304,7 +304,7 @@ f_cnt_t InstrumentSoundShaping::envFrames( const bool _only_vol ) const
 
 f_cnt_t InstrumentSoundShaping::releaseFrames() const
 {
-	if( !m_instrumentTrack->instrument() )
+	if (!m_instrumentTrack || !m_instrumentTrack->instrument())
 	{
 		return 0;
 	}
