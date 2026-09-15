@@ -460,7 +460,7 @@ private:
 
 	void copyToClipboard(const NoteVector & notes ) const;
 
-	void drawDetuningInfo( QPainter & _p, const Note * _n, int _x, int _y ) const;
+	void drawDetuningInfo(QPainter & _p, const Note * _n, int _x, int _y, QColor _detuneCol) const;
 	bool mouseOverNote();
 	Note * noteUnderMouse();
 	//! Calculates the closest note to the mouse given their parameter automation curve

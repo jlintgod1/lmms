@@ -621,9 +621,14 @@ void PianoRoll::setGhostMidiClip( MidiClip* newMidiClip )
 	m_ghostNotes.clear();
 	if( newMidiClip != nullptr )
 	{
-		for( Note *note : newMidiClip->notes() )
+		for(Note* note : newMidiClip->notes())
 		{
-			auto new_note = new Note(note->length(), note->pos(), note->key());
+			std::shared_ptr<DetuningHelper> newDetune;
+			if (note->hasDetuningInfo())
+			{
+				newDetune = std::make_shared<DetuningHelper>(*note->detuning());
+			}
+			auto new_note = new Note(note->length(), note->pos(), note->key(), 100, 0, newDetune);
 			m_ghostNotes.push_back( new_note );
 		}
 		emit ghostClipSet( true );
@@ -1098,12 +1103,12 @@ void PianoRoll::drawNoteRect( QPainter & p, int x, int y,
 
 
 
-void PianoRoll::drawDetuningInfo( QPainter & _p, const Note * _n, int _x,
-								int _y ) const
+void PianoRoll::drawDetuningInfo(QPainter& _p, const Note* _n, int _x,
+								int _y, const QColor _detuneCol) const
 {
 	int middle_y = _y + m_keyLineHeight / 2;
-	_p.setBrush(QBrush(m_noteColor));
-	_p.setPen(m_noteColor);
+	_p.setBrush(QBrush(_detuneCol));
+	_p.setPen(_detuneCol);
 	_p.setClipRect(
 		m_whiteKeyWidth,
 		PR_TOP_MARGIN,
@@ -3747,12 +3752,25 @@ void PianoRoll::paintEvent(QPaintEvent * pe )
 				// is the note in visible area?
 				if (note->key() > bottomKey && note->key() <= topKey)
 				{
-
 					// we've done and checked all, let's draw the note
 					drawNoteRect(
 						p, x + m_whiteKeyWidth, noteYPos(note->key()), note_width,
 						note, m_ghostNoteColor, m_ghostNoteTextColor, m_selectedNoteColor,
 						m_ghostNoteOpacity, m_ghostNoteBorders, drawNoteNames);
+					
+					// Draw note detuning
+					if(note->hasDetuningInfo())
+					{
+						QColor detuneColor = m_ghostNoteTextColor;
+						detuneColor.setAlpha(m_ghostNoteOpacity);
+
+						drawDetuningInfo(p, note, x + m_whiteKeyWidth, noteYPos(note->key()), detuneColor);
+						p.setClipRect(
+							m_whiteKeyWidth,
+							PR_TOP_MARGIN,
+							width() - m_whiteKeyWidth,
+							height() - PR_TOP_MARGIN);
+					}
 				}
 
 			}
@@ -3846,7 +3864,7 @@ void PianoRoll::paintEvent(QPaintEvent * pe )
 
 			if( note->hasDetuningInfo() )
 			{
-				drawDetuningInfo(p, note, x + m_whiteKeyWidth, noteYPos(note->key()));
+				drawDetuningInfo(p, note, x + m_whiteKeyWidth, noteYPos(note->key()), m_noteColor);
 				p.setClipRect(
 					m_whiteKeyWidth,
 					PR_TOP_MARGIN,
