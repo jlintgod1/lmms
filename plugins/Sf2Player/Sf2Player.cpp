@@ -1089,7 +1089,16 @@ void Sf2Instrument::deleteNotePluginData( NotePlayHandle * _n )
 	delete pluginData;
 }
 
+bool Sf2Instrument::handleMidiEvent( const MidiEvent& event, const TimePos& time, f_cnt_t offset )
+{
+	if (event.type() != MidiControlChange) { return true; }
 
+	m_synthMutex.lock();
+	fluid_synth_cc( m_synth, m_channel, event.controllerNumber(), event.controllerValue());
+	m_synthMutex.unlock();
+
+	return true;
+}
 
 
 gui::PluginView * Sf2Instrument::instantiateView( QWidget * _parent )
