@@ -106,6 +106,11 @@ public:
 		return m_unpitchedFrequency;
 	}
 
+	float additionalRandomFrequency() const
+	{
+		return m_additionalRandomFrequency;
+	}
+
 	//! Get the current per-note detuning for this note
 	float currentDetuning() const { return m_baseDetuning->value(); }
 
@@ -267,6 +272,8 @@ public:
 	{
 		m_frequencyNeedsUpdate = true;
 	}
+
+	void updateHumanization();
 
 private:
 	class BaseDetuning

@@ -27,6 +27,7 @@
 
 #include "AudioEngine.h"
 #include "DetuningHelper.h"
+#include "Engine.h"
 #include "InstrumentSoundShaping.h"
 #include "InstrumentTrack.h"
 #include "Instrument.h"
@@ -99,14 +100,6 @@ NotePlayHandle::NotePlayHandle( InstrumentTrack* instrumentTrack,
 		parent->setUsesBuffer( false );
 	}
 
-	if (m_instrumentTrack->perKeyRandomPitch()->value())
-	{
-		m_additionalRandomFrequency = (m_instrumentTrack->randomPitchMinModel()->value() + (m_instrumentTrack->randomPitchMaxModel()->value() - m_instrumentTrack->randomPitchMinModel()->value()) * lmms::fraction(key() * 123459.0f / 100.0f)) / 100.0f;
-	}
-	else
-	{
-		m_additionalRandomFrequency = lmms::fastRand(m_instrumentTrack->randomPitchMinModel()->value(), m_instrumentTrack->randomPitchMaxModel()->value()) / 100.f;
-	}
 	updateFrequency();
 
 	setFrames( _frames );
@@ -533,7 +526,14 @@ bool NotePlayHandle::operator==( const NotePlayHandle & _nph ) const
 }
 
 
-
+void NotePlayHandle::updateHumanization()
+{
+	const unsigned long randomSeed = m_instrumentTrack->perKeyRandomPitch()->value() ? (key()) : (key() + Engine::getSong()->getPlayPos());
+	m_additionalRandomFrequency = lmms::fastRandInc(m_instrumentTrack->randomPitchMinModel()->value(), m_instrumentTrack->randomPitchMaxModel()->value(), randomSeed) / 100.0f;
+	
+	const auto randomOffset = static_cast<f_cnt_t>(lmms::fastRandInc(m_instrumentTrack->randomTimingMinModel()->value(), m_instrumentTrack->randomTimingMaxModel()->value(), key() + Engine::getSong()->getPlayPos()) * Engine::audioEngine()->outputSampleRate());
+	setOffset(offset() + randomOffset);
+}
 
 void NotePlayHandle::updateFrequency()
 {

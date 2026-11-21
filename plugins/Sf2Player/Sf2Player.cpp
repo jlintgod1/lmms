@@ -800,7 +800,7 @@ void Sf2Instrument::playNote( NotePlayHandle * _n, SampleFrame* )
 
 	// Update the pitch of all the voices
 	if (const auto data = static_cast<Sf2PluginData*>(_n->m_pluginData)) {
-		const auto detuning = _n->currentDetuning();
+		const auto detuning = _n->currentDetuning() + _n->additionalRandomFrequency();
 		for (const auto& voice : data->fluidVoices) {
 			if (voice.isValid()) {
 				fluid_voice_gen_set(voice.get(), GEN_COARSETUNE, voice.coarseTune() + detuning);

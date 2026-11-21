@@ -781,7 +781,7 @@ bool InstrumentTrack::play( const TimePos & _start, const f_cnt_t _frames,
 				? 0
 				: (currentNote->endPos() - cur_start - noteOverlap) * frames_per_tick;
 
-			NotePlayHandle* notePlayHandle = NotePlayHandleManager::acquire(this, _offset + static_cast<f_cnt_t>(lmms::fastRandInc(randomTimingMinModel()->value(), randomTimingMaxModel()->value()) * Engine::audioEngine()->outputSampleRate()), noteFrames, *currentNote);
+			NotePlayHandle* notePlayHandle = NotePlayHandleManager::acquire(this, _offset, noteFrames, *currentNote);
 			notePlayHandle->setPatternTrack(pattern_track);
 			// are we playing global song?
 			if( _clip_num < 0 )
@@ -790,6 +790,7 @@ bool InstrumentTrack::play( const TimePos & _start, const f_cnt_t _frames,
 				// properly perform the note detuning
 				notePlayHandle->setSongGlobalParentOffset( c->startPosition() + c->startTimeOffset());
 			}
+			notePlayHandle->updateHumanization();
 
 			Engine::audioEngine()->addPlayHandle( notePlayHandle );
 			played_a_note = true;
